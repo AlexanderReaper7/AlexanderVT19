@@ -11,10 +11,8 @@ namespace Alexander_VT19
 {
     public class Player
     {
-        private CustomModel customModel;
+        public CustomModel customModel;
         private PlayerIndex _controllerIndex;
-
-        public Vector2 Input => GamePad.GetState(_controllerIndex).ThumbSticks.Right;
 
         public Player(PlayerIndex controllerIndex, CustomModel model, GraphicsDevice graphicsDevice)
         {
@@ -22,19 +20,32 @@ namespace Alexander_VT19
             customModel = model;
         }
 
-
-
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            // Get controller input
-            GamePadState gamePad = GamePad.GetState(_controllerIndex);
-            
-            Vector3 rotation = new Vector3(gamePad.ThumbSticks.Right, gamePad.ThumbSticks.Left.X);
-
-            // Convert to radians
-            rotation *= MathHelper.Pi;
-            customModel.Rotation += rotation;
+            UpdateRotationVector(gameTime);
         }
 
+        private const float sensitivity = 0.001f;
+
+        private void UpdateRotationVector(GameTime gameTime)
+        {
+            // Get input from game pad or keyboard TODO: implement keyboard controls
+            // Get controller input
+            GamePadState gamePad = GamePad.GetState(_controllerIndex);
+            // Get input vector
+            Vector2 rotation = gamePad.ThumbSticks.Right * gameTime.ElapsedGameTime.Milliseconds * (float)Math.PI * sensitivity;
+            // Create rotation matrix from 
+            Matrix matrix = Matrix.CreateFromYawPitchRoll(customModel.Rotation.Y, customModel.Rotation.X, customModel.Rotation.Z);
+
+            customModel.Rotation += Vector3.TransformNormal(new Vector3(rotation,0), matrix);
+            customModel.Position += Vector3.TransformNormal(new Vector3(gamePad.ThumbSticks.Left, 0), matrix);
+            // Reset rotation on right thumbstick click
+            if (gamePad.Buttons.RightStick == ButtonState.Pressed) { customModel.Rotation = Vector3.Zero;}
+        }
+
+        public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
+        {
+            customModel.Draw(view, projection, cameraPosition);
+        }
     }
 }

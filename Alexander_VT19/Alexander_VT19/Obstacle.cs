@@ -14,7 +14,7 @@ namespace Alexander_VT19
 
         public Obstacle(CustomModel model)
         {
-            CustomModel = model
+            CustomModel = model;
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Alexander_VT19
         /// <returns></returns>
         public static Obstacle GenerateNewObstacle(Player player)
         {
-
+            return null;
         }
     }
 }

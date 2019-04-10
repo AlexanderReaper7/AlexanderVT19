@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAGameConsole;
 
 namespace Alexander_VT19
 {

@@ -19,7 +19,9 @@ namespace Alexander_VT19
         private static readonly Vector3 playerPosition = new Vector3(0, 10, 0);
         private static readonly Vector3 obstaclePosition = new Vector3(10f);
 
-        private Player _player;
+        public RenderTarget2D RenderTarget;
+
+        public Player _player;
         private Obstacle _obstacle;
 
         public GameInstance(PlayerIndex playerIndex, GraphicsDevice graphics)
@@ -27,16 +29,27 @@ namespace Alexander_VT19
             CustomModel playerCustomModel = new CustomModel(PlayerModels[0], playerPosition, Vector3.Zero, Vector3.One, graphics);
             _player = new Player(playerIndex, playerCustomModel, graphics);
 
-            CustomModel obstacleCustomModel = new CustomModel(obstacleModel, obstaclePosition, Vector3.Zero, Vector3.One, graphics);
-            _obstacle = new Obstacle(obstacleCustomModel);
+            //CustomModel obstacleCustomModel = new CustomModel(obstacleModel, obstaclePosition, Vector3.Zero, Vector3.One, graphics);
+            //_obstacle = new Obstacle(obstacleCustomModel);
         }
 
         public static void LoadContent(ContentManager content)
         {
             // Load Models for player
             PlayerModels = new List<Model>();
-            PlayerModels.Add(content.Load<Model>("Model/test"));
+            PlayerModels.Add(content.Load<Model>(@"Models/newTest"));
 
+            obstacleModel = content.Load<Model>(@"Models/test");
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            _player.Update(gameTime);
+        }
+
+        public void Draw(Matrix cameraView, Matrix cameraProjection, Vector3 cameraPosition)
+        {
+            _player.Draw(cameraView,cameraProjection,cameraPosition);
         }
     }
 }

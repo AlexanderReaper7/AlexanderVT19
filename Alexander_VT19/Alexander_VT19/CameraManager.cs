@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Tools_MultipleCamera;
 
 namespace Alexander_VT19
 {
@@ -63,7 +62,7 @@ namespace Alexander_VT19
             switch (SelectedCamera)
             {
                 case CameraType.Chase:
-                    UpdateChaseCamera(_chaseCamera, player);
+                    UpdateChaseCamera(_chaseCamera, player.customModel);
                     break;
                 case CameraType.Free:
                     UpdateFreeCamera(_freeCamera, _lastMouseState, gameTime);

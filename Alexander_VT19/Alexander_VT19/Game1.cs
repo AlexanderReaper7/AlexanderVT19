@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using XNAGameConsole;
 
 namespace Alexander_VT19
 {
@@ -50,8 +49,6 @@ namespace Alexander_VT19
         /// </summary>
         protected override void Initialize()
         {            
-            InGame.Initialize();
-
             base.Initialize();
         }
 
@@ -85,7 +82,6 @@ namespace Alexander_VT19
         {
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
-                || GamePad.GetState(PlayerIndex.Two).Buttons.Back == ButtonState.Pressed
                 || Keyboard.GetState().IsKeyDown(Keys.End))
             {
                 Exit();
@@ -114,14 +110,13 @@ namespace Alexander_VT19
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-
             switch (GameState)
             {
                 case GameStates.MainMenu:
                     
                     break;
                 case GameStates.InGame:
-                    InGame.Draw(_spriteBatch);
+                    InGame.Draw();
                     break;
                 case GameStates.Exit:
                     break;
