@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using XNAGameConsole;
 
 namespace Alexander_VT19
 {
@@ -16,13 +17,29 @@ namespace Alexander_VT19
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+
+        public enum GameStates
+        {
+            MainMenu,
+            InGame,
+            Exit
+        }
+
+        public GameStates GameState { get; set; } = GameStates.InGame;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.PreferMultiSampling = true;
+
+            IsFixedTimeStep = false;
+
+            _graphics.IsFullScreen = true;
         }
 
         /// <summary>
@@ -32,8 +49,8 @@ namespace Alexander_VT19
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize()
-        {
-            // TODO: Add your initialization logic here
+        {            
+            InGame.Initialize();
 
             base.Initialize();
         }
@@ -45,9 +62,10 @@ namespace Alexander_VT19
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            // Load InGame
+            InGame.LoadContent(Content, GraphicsDevice);
         }
 
         /// <summary>
@@ -56,7 +74,6 @@ namespace Alexander_VT19
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -67,10 +84,26 @@ namespace Alexander_VT19
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                || GamePad.GetState(PlayerIndex.Two).Buttons.Back == ButtonState.Pressed
+                || Keyboard.GetState().IsKeyDown(Keys.End))
+            {
+                Exit();
+            }
 
-            // TODO: Add your update logic here
+            switch (GameState)
+            {
+                case GameStates.MainMenu:
+                    break;
+                case GameStates.InGame:
+                    InGame.Update(gameTime);
+                    break;
+                case GameStates.Exit:
+                    Exit();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             base.Update(gameTime);
         }
@@ -81,9 +114,20 @@ namespace Alexander_VT19
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            switch (GameState)
+            {
+                case GameStates.MainMenu:
+                    
+                    break;
+                case GameStates.InGame:
+                    InGame.Draw(_spriteBatch);
+                    break;
+                case GameStates.Exit:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             base.Draw(gameTime);
         }
