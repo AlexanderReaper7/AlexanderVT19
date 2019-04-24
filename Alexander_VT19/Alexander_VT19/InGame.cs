@@ -20,29 +20,15 @@ namespace Alexander_VT19
 
         private static SkyBox _skyBox;
 
-        private static Effect _simpleEffect;
-        private static LightingMaterial _material;
-
 
         public static void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
         {
             _graphics = graphicsDevice;
 
-            // Create new cameras
-            ChaseCamera chaseCamera = new ChaseCamera(new Vector3(0,100f,30f), Vector3.Zero, Vector3.Zero, _graphics) {Springiness = 1};
-            chaseCamera.Move(Vector3.Zero, Vector3.Zero);
-            FreeCamera freeCamera = new FreeCamera(_graphics, 0f, 0f, new Vector3(10f));
-            _cameraManager = new CameraManager(chaseCamera, freeCamera, CameraType.Chase);
-
+            LoadCamera(content);
             LoadSkyBox(content);
             GameInstance.LoadContent(content);
 
-            _simpleEffect = content.Load<Effect>("Effects/SimpleEffect");
-            _material = new LightingMaterial()
-            {
-                AmbientColor = Color.Red.ToVector3() * .15f,
-                LightColor = Color.White.ToVector3() * .85f,
-            };
 
             StartNewGame(1);
         }
@@ -51,9 +37,17 @@ namespace Alexander_VT19
         {
             // Load sky texture
             TextureCube skyTexture = content.Load<TextureCube>("SkyBox/clouds");
-            // create new SkyBox
+            // Create new SkyBox
             _skyBox = new SkyBox(content, _graphics, skyTexture);
+        }
 
+        private static void LoadCamera(ContentManager content)
+        {
+            // Create new cameras
+            ChaseCamera chaseCamera = new ChaseCamera(new Vector3(0, 100f, 30f), Vector3.Zero, Vector3.Zero, _graphics) { Springiness = 1 };
+            chaseCamera.Move(Vector3.Zero, Vector3.Zero);
+            FreeCamera freeCamera = new FreeCamera(_graphics, 0f, 0f, new Vector3(10f));
+            _cameraManager = new CameraManager(chaseCamera, freeCamera, CameraType.Chase);
         }
 
         /// <summary>
@@ -62,7 +56,6 @@ namespace Alexander_VT19
         /// <param name="numPlayers"></param>
         public static void StartNewGame(int numPlayers)
         {
-
             _gameInstances = new List<GameInstance>(numPlayers);
             for (int i = 0; i < numPlayers; i++)
             {
@@ -74,7 +67,7 @@ namespace Alexander_VT19
         {
             foreach (GameInstance instance in _gameInstances)
             {
-                instance.Update(gameTime);
+                instance.Update(gameTime, _cameraManager.Camera);
             }
             _cameraManager.Update(gameTime, _gameInstances[0]._player);
         }

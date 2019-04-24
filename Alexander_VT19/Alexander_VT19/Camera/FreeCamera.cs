@@ -8,21 +8,26 @@ namespace Alexander_VT19
         /// <summary>
         /// Rotation around Z axis
         /// </summary>
-        public float Yaw { get; set; }
+        public float Yaw
+        {
+            get { return Rotation.Z; }
+            set { Rotation =  new Vector3(Rotation.X, Rotation.Y, value); }
+        }
+
         /// <summary>
         /// Rotation around Y axis
         /// </summary>
-        public float Pitch { get; set; }
-
-        /// <summary>
-        /// Coordinate the camera should face
-        /// </summary>
-        public Vector3 Target { get; set; }
+        public float Pitch
+        {
+            get { return Rotation.Y; }
+            set { Rotation = new Vector3(Rotation.X, value, Rotation.Z); }
+        }
 
         /// <summary>
         /// Change in position this update
         /// </summary>
         private Vector3 _translation;
+
 
         /// <summary>
         /// Instantiates a new FreeCamera

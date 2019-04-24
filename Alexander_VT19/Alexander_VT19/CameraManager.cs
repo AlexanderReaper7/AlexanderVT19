@@ -73,10 +73,10 @@ namespace Alexander_VT19
 
         }
 
-        private static void UpdateChaseCamera(ChaseCamera camera, CustomModel targetModel)
+        private void UpdateChaseCamera(ChaseCamera camera, CustomModel targetModel)
         {
             // Move camera position and rotation relative to box 
-            camera.Move(targetModel.Position, targetModel.Rotation);
+            camera.Move(targetModel.Position, Vector3.Zero);
 
             // Update camera
             camera.Update();
@@ -88,7 +88,7 @@ namespace Alexander_VT19
         /// <param name="lastMouseState"></param>
         /// <param name="gameTime"></param>
         /// <param name="camera"></param>
-        private static void UpdateFreeCamera(FreeCamera camera, MouseState lastMouseState, GameTime gameTime)
+        private void UpdateFreeCamera(FreeCamera camera, MouseState lastMouseState, GameTime gameTime)
         {
             // Get mouse and keyboard state
             MouseState mouseState = Mouse.GetState();
@@ -115,6 +115,8 @@ namespace Alexander_VT19
 
             // Update camera
             camera.Update();
+
+            _lastMouseState = mouseState;
         }
     }
 }

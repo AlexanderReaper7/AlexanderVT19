@@ -23,14 +23,20 @@ namespace Alexander_VT19
         {
             get { return view; }
 
-            set
+            protected set
             {
                 view = value;
                 generateFrustrum();
             }
         }
 
-        public Vector3 Position { get; set; }
+        public Vector3 Position { get; set; } = Vector3.Zero;
+        public Vector3 Rotation { get; set; } = Vector3.Zero;
+
+        /// <summary>
+        /// Coordinate the camera should face
+        /// </summary>
+        public Vector3 Target { get; protected set; }
 
         public BoundingFrustum Frustum { get; private set; }
 

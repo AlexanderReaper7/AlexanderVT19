@@ -26,8 +26,19 @@ namespace Alexander_VT19
 
         public GameInstance(PlayerIndex playerIndex, GraphicsDevice graphics)
         {
-            CustomModel playerCustomModel = new CustomModel(PlayerModels[0], playerPosition, Vector3.Zero, Vector3.One, graphics);
-            _player = new Player(playerIndex, playerCustomModel, graphics);
+            CustomModel playerCustomModel = new CustomModel(PlayerModels[0], playerPosition, Vector3.Zero, Vector3.One * 100f, graphics);
+
+            CustomModel[] axismodels = new CustomModel[3];
+            for (int i = 0; i < 3; i++)
+            {
+                axismodels[i] = new CustomModel(PlayerModels[1], playerPosition, Vector3.Zero, Vector3.One * 100f, graphics);
+            }
+
+            axismodels[0].Material = new LightingMaterial() { AmbientColor = Color.Green.ToVector3(), LightColor = Color.Green.ToVector3()};
+            axismodels[1].Material = new LightingMaterial() { AmbientColor = Color.Blue.ToVector3(), LightColor = Color.Blue.ToVector3()};
+            axismodels[2].Material = new LightingMaterial() { AmbientColor = Color.Red.ToVector3(), LightColor = Color.Red.ToVector3()};
+
+            _player = new Player(playerIndex, InputMethod.Keyboard, playerCustomModel, axismodels);
 
             //CustomModel obstacleCustomModel = new CustomModel(obstacleModel, obstaclePosition, Vector3.Zero, Vector3.One, graphics);
             //_obstacle = new Obstacle(obstacleCustomModel);
@@ -38,13 +49,13 @@ namespace Alexander_VT19
             // Load Models for player
             PlayerModels = new List<Model>();
             PlayerModels.Add(content.Load<Model>(@"Models/newTest"));
-
+            PlayerModels.Add(content.Load<Model>(@"Models/LowPolyRing"));
             obstacleModel = content.Load<Model>(@"Models/test");
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Camera camera)
         {
-            _player.Update(gameTime);
+            _player.Update(gameTime, camera);
         }
 
         public void Draw(Matrix cameraView, Matrix cameraProjection, Vector3 cameraPosition)

@@ -6,7 +6,7 @@ namespace Alexander_VT19
     public class CustomModel
     {
         public Vector3 Position { get; set; }
-        public Vector3 Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
         public Vector3 Scale { get; set; }
 
         public Model Model { get; private set; }
@@ -26,7 +26,7 @@ namespace Alexander_VT19
             Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
 
             Position = position;
-            Rotation = rotation;
+            Rotation = Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
             Scale = scale;
 
             this.graphicsDevice = graphicsDevice;
@@ -38,7 +38,7 @@ namespace Alexander_VT19
         {
             // Create new matrix with current scale, rotation and translation
             Matrix baseWorld = Matrix.CreateScale(Scale)
-                * Matrix.CreateFromYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z)
+                * Matrix.CreateFromQuaternion(Rotation)
                 * Matrix.CreateTranslation(Position);
 
             // For every mesh in model 

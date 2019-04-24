@@ -5,8 +5,6 @@ namespace Alexander_VT19
 {
     public class ChaseCamera : Camera
     {
-        public Vector3 Target { get; private set; }
-
         public Vector3 FollowTargetPosition { get; private set; }
         public Vector3 FollowTargetRotation { get; private set; }
 

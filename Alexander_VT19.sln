@@ -5,7 +5,9 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alexander_VT19", "Alexander_VT19\Alexander_VT19\Alexander_VT19.csproj", "{13CE1AA6-DC33-409E-A211-B293F54758AD}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Alexander_VT19Content", "Alexander_VT19\Alexander_VT19Content\Alexander_VT19Content.contentproj", "{0E424D2D-2124-413A-8F04-9688E2F34AF2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alexander_VT19Content", "Alexander_VT19\Alexander_VT19Content\Alexander_VT19Content.contentproj", "{0E424D2D-2124-413A-8F04-9688E2F34AF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeferredRenderingModel", "DeferredRenderingModel\DeferredRenderingModel.csproj", "{6186FB3F-E27E-456B-81AE-434DDCC10F80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,10 @@ Global
 		{13CE1AA6-DC33-409E-A211-B293F54758AD}.Release|x86.Build.0 = Release|x86
 		{0E424D2D-2124-413A-8F04-9688E2F34AF2}.Debug|x86.ActiveCfg = Debug|x86
 		{0E424D2D-2124-413A-8F04-9688E2F34AF2}.Release|x86.ActiveCfg = Release|x86
+		{6186FB3F-E27E-456B-81AE-434DDCC10F80}.Debug|x86.ActiveCfg = Debug|x86
+		{6186FB3F-E27E-456B-81AE-434DDCC10F80}.Debug|x86.Build.0 = Debug|x86
+		{6186FB3F-E27E-456B-81AE-434DDCC10F80}.Release|x86.ActiveCfg = Release|x86
+		{6186FB3F-E27E-456B-81AE-434DDCC10F80}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
