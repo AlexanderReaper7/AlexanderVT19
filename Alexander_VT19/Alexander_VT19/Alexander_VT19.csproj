@@ -79,6 +79,7 @@
     <Compile Include="DeferredRenderer\DeferredRenderer.cs" />
     <Compile Include="DeferredRenderer\FullscreenQuad.cs" />
     <Compile Include="Camera\FreeCamera.cs" />
+    <Compile Include="DeferredRenderer\SSAO.cs" />
     <Compile Include="GameInstance.cs" />
     <Compile Include="InGame.cs" />
     <Compile Include="Lights\DirectionalLight.cs" />

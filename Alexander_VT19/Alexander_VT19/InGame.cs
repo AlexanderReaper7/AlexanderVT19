@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Alexander_VT19.Lights;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,9 +14,17 @@ namespace Alexander_VT19
     public static class InGame
     {
         private static GraphicsDevice _graphics;
+        private static DeferredRenderer deferredRenderer;
+        private static SSAO ssao;
+        private static RenderTarget2D scene;
+        private static SpriteBatch spriteBatch;
 
+        private static SpriteFont defaultFont;
 
         private static CameraManager _cameraManager;
+
+        private static LightManager lightManager;
+
         private static List<GameInstance> _gameInstances;
 
         private static SkyBox _skyBox;
@@ -24,6 +33,14 @@ namespace Alexander_VT19
         public static void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
         {
             _graphics = graphicsDevice;
+
+            deferredRenderer = new DeferredRenderer(graphicsDevice, content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+
+            lightManager = new LightManager(content);
+            ssao = new SSAO(graphicsDevice,content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+            scene = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
+            lightManager.AddLight(new SpotLight(graphicsDevice,Vector3.One * 10f, Vector3.Backward, Color.White.ToVector4(),0.2f, true,2048, null));
 
             LoadCamera(content);
             LoadSkyBox(content);

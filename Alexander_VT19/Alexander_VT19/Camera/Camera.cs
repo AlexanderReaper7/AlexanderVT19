@@ -30,6 +30,11 @@ namespace Alexander_VT19
             }
         }
 
+        public float AspectRatio { get; private set; }
+
+        public float NearClip { get; set; }
+        public float FarClip { get; set; }
+
         public Vector3 Position { get; set; } = Vector3.Zero;
         public Vector3 Rotation { get; set; } = Vector3.Zero;
 
@@ -49,13 +54,16 @@ namespace Alexander_VT19
             GeneratePerspectiveProjectionMatrix(MathHelper.PiOver4);
         }
 
-        private void GeneratePerspectiveProjectionMatrix(float fieldOfView)
+        private void GeneratePerspectiveProjectionMatrix(float fieldOfView, float near = 0.1f, float far = 1000000.0f)
         {
             PresentationParameters pp = GraphicsDevice.PresentationParameters;
 
-            float aspectRatio = (float) pp.BackBufferWidth / (float) pp.BackBufferHeight;
+            AspectRatio = (float) pp.BackBufferWidth / (float) pp.BackBufferHeight;
 
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), aspectRatio, 0.1f, 1000000.0f);
+            NearClip = near;
+            FarClip = far;
+
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), AspectRatio, NearClip, FarClip);
         }
 
         public virtual void Update()

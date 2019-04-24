@@ -77,7 +77,7 @@ namespace Alexander_VT19
             }
         }
 
-        protected void SetEffectParameter(Effect effect, string param, object val)
+        protected static void SetEffectParameter(Effect effect, string param, object val)
         {
             if(effect.Parameters[param] == null) return;
 

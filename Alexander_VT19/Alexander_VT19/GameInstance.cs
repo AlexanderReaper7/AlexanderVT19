@@ -19,6 +19,8 @@ namespace Alexander_VT19
         private static readonly Vector3 playerPosition = new Vector3(0, 10, 0);
         private static readonly Vector3 obstaclePosition = new Vector3(10f);
 
+
+
         public RenderTarget2D RenderTarget;
 
         public Player _player;
@@ -26,7 +28,7 @@ namespace Alexander_VT19
 
         public GameInstance(PlayerIndex playerIndex, GraphicsDevice graphics)
         {
-            CustomModel playerCustomModel = new CustomModel(PlayerModels[0], playerPosition, Vector3.Zero, Vector3.One * 100f, graphics);
+            CustomModel playerCustomModel = new CustomModel(PlayerModels[2], playerPosition, Vector3.Zero, Vector3.One * 100f, graphics);
 
             CustomModel[] axismodels = new CustomModel[3];
             for (int i = 0; i < 3; i++)
@@ -60,6 +62,7 @@ namespace Alexander_VT19
 
         public void Draw(Matrix cameraView, Matrix cameraProjection, Vector3 cameraPosition)
         {
+            
             _player.Draw(cameraView,cameraProjection,cameraPosition);
         }
     }
