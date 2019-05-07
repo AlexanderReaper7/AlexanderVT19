@@ -14,16 +14,14 @@ namespace Alexander_VT19
     public static class InGame
     {
         private static GraphicsDevice _graphics;
-        private static DeferredRenderer deferredRenderer;
-        private static SSAO ssao;
-        private static RenderTarget2D scene;
-        private static SpriteBatch spriteBatch;
 
-        private static SpriteFont defaultFont;
+        //private static DeferredRenderer deferredRenderer;
+        //private static SSAO ssao;
+        //private static RenderTarget2D scene;
+        //private static SpriteFont defaultFont;
+        //private static LightManager lightManager;
 
         private static CameraManager _cameraManager;
-
-        private static LightManager lightManager;
 
         private static List<GameInstance> _gameInstances;
 
@@ -34,13 +32,13 @@ namespace Alexander_VT19
         {
             _graphics = graphicsDevice;
 
-            deferredRenderer = new DeferredRenderer(graphicsDevice, content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+            //deferredRenderer = new DeferredRenderer(graphicsDevice, content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
 
-            lightManager = new LightManager(content);
-            ssao = new SSAO(graphicsDevice,content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
-            scene = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            //lightManager = new LightManager(content);
+            //ssao = new SSAO(graphicsDevice,content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+            //scene = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 
-            lightManager.AddLight(new SpotLight(graphicsDevice,Vector3.One * 10f, Vector3.Backward, Color.White.ToVector4(),0.2f, true,2048, null));
+            //lightManager.AddLight(new SpotLight(graphicsDevice,Vector3.One * 10f, Vector3.Backward, Color.White.ToVector4(),0.2f, true,2048, null));
 
             LoadCamera(content);
             LoadSkyBox(content);
@@ -95,13 +93,19 @@ namespace Alexander_VT19
         public static void Draw()
         {
             _graphics.Clear(Color.Black);
-
-            foreach (GameInstance instance in _gameInstances)
+            RenderTarget2D[] screens = new RenderTarget2D[_gameInstances.Count];
+            // Render each instance 
+            for (int i = 0; i < _gameInstances.Count; i++)
             {
-                //_graphics.SetRenderTarget(instance.RenderTarget);
+                _graphics.SetRenderTarget(_gameInstances[i].RenderTarget);
                 _skyBox.Draw(_cameraManager.Camera.View, _cameraManager.Camera.Projection, _cameraManager.Camera.Position);
-                instance.Draw(_cameraManager.Camera.View, _cameraManager.Camera.Projection, _cameraManager.Camera.Position);
+                _gameInstances[i].Draw(_cameraManager.Camera);
+                // Collect every instance´s RenderTarget
+                screens[i] = _gameInstances[i].RenderTarget;
             }
+
+            _graphics.SetRenderTarget(null);
+            SplitScreenHelper.DrawSplitScreen(_graphics, screens);
         }
     }
 }

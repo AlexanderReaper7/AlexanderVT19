@@ -63,7 +63,7 @@ namespace Alexander_VT19
             //Create FSQ
             fsq = new FullscreenQuad(GraphicsDevice);
             //Load Random Normal Texture
-            randomNormals = Content.Load<Texture2D>("RandomNormals");
+            randomNormals = Content.Load<Texture2D>("null_normal");
 
             //Set Sample Radius to Default
             sampleRadius = 0;

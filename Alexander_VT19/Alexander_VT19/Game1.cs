@@ -38,7 +38,7 @@ namespace Alexander_VT19
 
             IsFixedTimeStep = false;
 
-            _graphics.IsFullScreen = true;
+            //_graphics.IsFullScreen = true;
         }
 
         /// <summary>

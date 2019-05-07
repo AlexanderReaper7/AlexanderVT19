@@ -106,10 +106,10 @@ namespace Alexander_VT19
             fsq = new FullscreenQuad(GraphicsDevice);
 
             //Load Point Light Geometry
-            pointLightGeometry = Content.Load<Model>("PointLightGeometry");
+            pointLightGeometry = Content.Load<Model>("sphere");
 
             //Load Spot Light Geometry
-            spotLightGeometry = Content.Load<Model>("SpotLightGeometry");
+            //spotLightGeometry = Content.Load<Model>("SpotLightGeometry");
         }
 
         //GBuffer Creation
@@ -188,6 +188,7 @@ namespace Alexander_VT19
             //Make Final Rendered Scene
             MakeFinal(GraphicsDevice, Output);
         }
+
         //Debug
         public void Debug(GraphicsDevice GraphicsDevice, SpriteBatch spriteBatch)
         {
@@ -359,7 +360,7 @@ namespace Alexander_VT19
                 pointLight.Parameters["shadowMapSize"].SetValue(light.getShadowMapResoloution());
                 //Set Cull Mode
                 Vector3 diff = Camera.Position - light.getPosition();
-                float CameraToLight = (float)Math.Sqrt((float)Vector3.Dot(diff, diff)) / 100.0f;
+                float CameraToLight = (float)Math.Sqrt((float)Vector3.Dot(diff, diff)) / 100.0f; // WARN: model scaling
                 //If the Camera is in the light, render the backfaces, if it's out of the
                 //light, render the frontfaces
                 if (CameraToLight <= light.getRadius())
