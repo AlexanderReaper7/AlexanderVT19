@@ -13,13 +13,18 @@ namespace Alexander_VT19
 {
     public static class InGame
     {
-        private static GraphicsDevice _graphics;
+        private static GraphicsDevice _graphicsDevice;
+
+        #region DeferredRenderer
 
         //private static DeferredRenderer deferredRenderer;
         //private static SSAO ssao;
         //private static RenderTarget2D scene;
         //private static SpriteFont defaultFont;
         //private static LightManager lightManager;
+        
+
+        #endregion
 
         private static CameraManager _cameraManager;
 
@@ -30,7 +35,7 @@ namespace Alexander_VT19
 
         public static void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
         {
-            _graphics = graphicsDevice;
+            _graphicsDevice = graphicsDevice;
 
             //deferredRenderer = new DeferredRenderer(graphicsDevice, content, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
 
@@ -45,7 +50,7 @@ namespace Alexander_VT19
             GameInstance.LoadContent(content);
 
 
-            StartNewGame(1);
+            StartNewGame(4);
         }
 
         private static void LoadSkyBox(ContentManager content)
@@ -53,38 +58,45 @@ namespace Alexander_VT19
             // Load sky texture
             TextureCube skyTexture = content.Load<TextureCube>("SkyBox/clouds");
             // Create new SkyBox
-            _skyBox = new SkyBox(content, _graphics, skyTexture);
+            _skyBox = new SkyBox(content, _graphicsDevice, skyTexture);
         }
 
         private static void LoadCamera(ContentManager content)
         {
             // Create new cameras
-            ChaseCamera chaseCamera = new ChaseCamera(new Vector3(0, 100f, 30f), Vector3.Zero, Vector3.Zero, _graphics) { Springiness = 1 };
+            ChaseCamera chaseCamera = new ChaseCamera(new Vector3(0, 100f, 30f), Vector3.Zero, Vector3.Zero, _graphicsDevice) { Springiness = 1 };
             chaseCamera.Move(Vector3.Zero, Vector3.Zero);
-            FreeCamera freeCamera = new FreeCamera(_graphics, 0f, 0f, new Vector3(10f));
-            _cameraManager = new CameraManager(chaseCamera, freeCamera, CameraType.Chase);
+            FreeCamera freeCamera = new FreeCamera(_graphicsDevice, 0f, 0f, new Vector3(10f));
+            StaticCamera stc1 = new StaticCamera(Vector3.Backward * 600f, Vector3.Zero, _graphicsDevice);
+            _cameraManager = new CameraManager(freeCamera, stc1, Cameras.Static1);
         }
 
+
+
         /// <summary>
-        /// Entry point for starting a new game, creates new players etc
+        /// Entry point for starting a new game, creates new game instances
         /// </summary>
         /// <param name="numPlayers"></param>
-        public static void StartNewGame(int numPlayers)
+        public static void StartNewGame(PlayerSelectMenu.PlayerData[] playerDatas)
         {
-            _gameInstances = new List<GameInstance>(numPlayers);
+            _gameInstances = new List<GameInstance>pl);
             for (int i = 0; i < numPlayers; i++)
             {
-                _gameInstances.Add(new GameInstance((PlayerIndex)i, _graphics));
+                _gameInstances.Add(new GameInstance((PlayerIndex)i, _graphicsDevice));
             }
         }
 
         public static void Update(GameTime gameTime)
         {
+            // Update instances
             foreach (GameInstance instance in _gameInstances)
             {
-                instance.Update(gameTime, _cameraManager.Camera);
+                instance.Update(gameTime);
             }
-            _cameraManager.Update(gameTime, _gameInstances[0]._player);
+            // Update camera
+            _cameraManager.Update(gameTime);
+            // Update Challenge
+
         }
 
 
@@ -92,20 +104,29 @@ namespace Alexander_VT19
 
         public static void Draw()
         {
-            _graphics.Clear(Color.Black);
+            // Clear the graphics device
+            _graphicsDevice.Clear(Color.Black);
+            // Create a new array to collect the _gameInstances render targets in once rendered
             RenderTarget2D[] screens = new RenderTarget2D[_gameInstances.Count];
+
             // Render each instance 
             for (int i = 0; i < _gameInstances.Count; i++)
             {
-                _graphics.SetRenderTarget(_gameInstances[i].RenderTarget);
+                // Set render target to instance
+                _graphicsDevice.SetRenderTarget(_gameInstances[i].RenderTarget);
+
+                // Draw The instance
                 _skyBox.Draw(_cameraManager.Camera.View, _cameraManager.Camera.Projection, _cameraManager.Camera.Position);
                 _gameInstances[i].Draw(_cameraManager.Camera);
+
                 // Collect every instance´s RenderTarget
                 screens[i] = _gameInstances[i].RenderTarget;
             }
 
-            _graphics.SetRenderTarget(null);
-            SplitScreenHelper.DrawSplitScreen(_graphics, screens);
+            // Set render target to the back buffer
+            _graphicsDevice.SetRenderTarget(null);
+            // Draw The screens
+            SplitScreenHelper.DrawSplitScreen(_graphicsDevice, screens);
         }
     }
 }

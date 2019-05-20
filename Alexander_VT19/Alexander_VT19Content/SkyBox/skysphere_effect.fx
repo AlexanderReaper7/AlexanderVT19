@@ -36,9 +36,9 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	float3 viewDirection = normalize(input.WorldPosition - CameraPosition);
+	float3 viewDirection = normalize(input.WorldPosition - CameraPosition); // get position
 
-	return texCUBE(CubeMapSampler, viewDirection);
+	return texCUBE(CubeMapSampler, viewDirection); // return texture
 }
 
 technique Technique1

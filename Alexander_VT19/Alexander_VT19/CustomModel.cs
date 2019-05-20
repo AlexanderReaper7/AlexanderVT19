@@ -6,10 +6,10 @@ namespace Alexander_VT19
     public class CustomModel
     {
         public Vector3 Position { get; set; }
-        public Quaternion Rotation { get; set; }
+        public Vector3 Rotation { get; set; }
         public Vector3 Scale { get; set; }
 
-        public Model Model { get; private set; }
+        public Model Model { get; set; }
         public Material Material { get; set; }
 
         private Matrix[] modelTransforms;
@@ -26,7 +26,7 @@ namespace Alexander_VT19
             Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
 
             Position = position;
-            Rotation = Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+            Rotation = rotation;
             Scale = scale;
 
             this.graphicsDevice = graphicsDevice;
@@ -38,7 +38,7 @@ namespace Alexander_VT19
         {
             // Create new matrix with current scale, rotation and translation
             Matrix baseWorld = Matrix.CreateScale(Scale)
-                * Matrix.CreateFromQuaternion(Rotation)
+                * Matrix.CreateFromYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z)
                 * Matrix.CreateTranslation(Position);
 
             // For every mesh in model 
@@ -60,7 +60,7 @@ namespace Alexander_VT19
                         ((BasicEffect)effect).View = view;
                         ((BasicEffect)effect).Projection = projection;
                         // enable lighting
-                        ((BasicEffect)effect).EnableDefaultLighting();
+                        //((BasicEffect)effect).EnableDefaultLighting();
                     }
                     else
                     {
@@ -77,7 +77,7 @@ namespace Alexander_VT19
             }
         }
 
-        protected static void SetEffectParameter(Effect effect, string param, object val)
+        public static void SetEffectParameter(Effect effect, string param, object val)
         {
             if(effect.Parameters[param] == null) return;
 

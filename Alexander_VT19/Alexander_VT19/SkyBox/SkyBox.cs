@@ -12,7 +12,7 @@ namespace Alexander_VT19
     public class SkyBox
     {
         private CustomModel _model;
-        private Effect _effect;
+        private Effect _skySphereEffect;
         private GraphicsDevice _graphics;
 
         /// <summary>
@@ -26,11 +26,11 @@ namespace Alexander_VT19
             // Create a new model
             _model = new CustomModel(content.Load<Model>("SkyBox/skysphere_mesh"), Vector3.Zero, Vector3.Zero, Vector3.One, graphicsDevice);
             // Load the effect
-            _effect = content.Load<Effect>("SkyBox/skysphere_effect");
+            _skySphereEffect = content.Load<Effect>("SkyBox/skysphere_effect");
             // Set the texture to the effect
-            _effect.Parameters["CubeMap"].SetValue(texture);
+            _skySphereEffect.Parameters["CubeMap"].SetValue(texture);
             // Set the effect to the model
-            _model.SetModelEffect(_effect,false);
+            _model.SetModelEffect(_skySphereEffect,false);
 
             _graphics = graphicsDevice;
         }
@@ -41,8 +41,8 @@ namespace Alexander_VT19
         /// <param name="texture"></param>
         public void LoadTexture(TextureCube texture)
         {
-            _effect.Parameters["CubeMap"].SetValue(texture);
-            _model.SetModelEffect(_effect, false);
+            _skySphereEffect.Parameters["CubeMap"].SetValue(texture);
+            _model.SetModelEffect(_skySphereEffect, false);
         }
 
         /// <summary>

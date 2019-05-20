@@ -18,15 +18,22 @@ namespace Alexander_VT19
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
+        private static GameStates _gameState = GameStates.InGame;
+        private static GameStates _nextGameState;
         public enum GameStates
         {
             MainMenu,
             InGame,
+            PlayerSelection,
             Exit
         }
 
-        public GameStates GameState { get; set; } = GameStates.InGame;
+        public static GameStates GameState
+        {
+            get { return _gameState; }
+            set { _nextGameState = value; }
+        }
+
 
         public Game1()
         {
@@ -63,6 +70,8 @@ namespace Alexander_VT19
             
             // Load InGame
             InGame.LoadContent(Content, GraphicsDevice);
+
+            PlayerSelectMenu.LoadContent(Content, GraphicsDevice, _spriteBatch);
         }
 
         /// <summary>
@@ -97,6 +106,9 @@ namespace Alexander_VT19
                 case GameStates.Exit:
                     Exit();
                     break;
+                case GameStates.PlayerSelection:
+                    PlayerSelectMenu.Update();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -120,11 +132,21 @@ namespace Alexander_VT19
                     break;
                 case GameStates.Exit:
                     break;
+                case GameStates.PlayerSelection:
+                    PlayerSelectMenu.Draw();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
             base.Draw(gameTime);
+            FinalUpdate();
+        }
+
+        private void FinalUpdate()
+        {
+            // Update Game State
+            // _gameState = _nextGameState;
         }
     }
 }

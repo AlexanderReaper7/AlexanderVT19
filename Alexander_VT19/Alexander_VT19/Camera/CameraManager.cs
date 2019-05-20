@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Alexander_VT19
 {
-    public enum CameraType : byte
+    public enum Cameras : byte
     {
-        Chase,
-        Free
+        Free,
+        Static1
     }
 
     /// <summary>
@@ -17,11 +17,12 @@ namespace Alexander_VT19
     {
         private ChaseCamera _chaseCamera;
         private FreeCamera _freeCamera;
+        private StaticCamera _staticCamera1;
 
         /// <summary>
         /// Currently active camera
         /// </summary>
-        public CameraType SelectedCamera { get; set; }
+        public Cameras SelectedCamera { get; set; }
 
         private MouseState _lastMouseState;
 
@@ -34,38 +35,37 @@ namespace Alexander_VT19
             {
                 switch (SelectedCamera)
                 {
-                    case CameraType.Chase:
-                        return _chaseCamera;
-                    case CameraType.Free:
+                    case Cameras.Free:
                         return _freeCamera;
+                    case Cameras.Static1:
+                        return _staticCamera1;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public CameraManager(ChaseCamera chaseCamera, FreeCamera freeCamera, CameraType initialSelectedCamera)
+        public CameraManager( FreeCamera freeCamera, StaticCamera stc1, Cameras initialSelectedCamera)
         {
-            _chaseCamera = chaseCamera;
             _freeCamera = freeCamera;
+            _staticCamera1 = stc1;
             SelectedCamera = initialSelectedCamera;
             _lastMouseState = Mouse.GetState();
         }
 
-        public void Update(GameTime gameTime, Player player)
+        public void Update(GameTime gameTime)
         {
             // Update selected 
-            if (Keyboard.GetState().IsKeyDown(Keys.D1)) SelectedCamera = CameraType.Chase;
-            if (Keyboard.GetState().IsKeyDown(Keys.D2)) SelectedCamera = CameraType.Free;
+            if (Keyboard.GetState().IsKeyDown(Keys.D1)) SelectedCamera = Cameras.Free;
+            if (Keyboard.GetState().IsKeyDown(Keys.D2)) SelectedCamera = Cameras.Static1;
 
             // Update the selected camera´s relevant methods
             switch (SelectedCamera)
             {
-                case CameraType.Chase:
-                    UpdateChaseCamera(_chaseCamera, player.customModel);
-                    break;
-                case CameraType.Free:
+                case Cameras.Free:
                     UpdateFreeCamera(_freeCamera, _lastMouseState, gameTime);
+                    break;
+                case Cameras.Static1:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

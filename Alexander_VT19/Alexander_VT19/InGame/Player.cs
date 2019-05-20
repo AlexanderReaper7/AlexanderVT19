@@ -23,9 +23,7 @@ namespace Alexander_VT19
         private InputMethod _preferredInputMethod;
         private KeyBinds keyBinds;
 
-        private CustomModel[] rotationalAxisModels;
-
-        public Vector3 RotationInput
+        private Vector3 RotationInput
         {
             get
             {
@@ -42,67 +40,67 @@ namespace Alexander_VT19
         }
 
 
-
-        public Player(PlayerIndex playerIndex, InputMethod preferredInputMethod, CustomModel model, CustomModel[] axisModels)
+        public Player(PlayerIndex playerIndex, InputMethod preferredInputMethod, CustomModel model, GraphicsDevice graphicsDevice)
         {
             _playerIndex = playerIndex;
             _preferredInputMethod = preferredInputMethod;
             keyBinds = GetKeyBinds(_playerIndex);
             customModel = model;
-            rotationalAxisModels = axisModels;
+            customModel.Material = new SimpleMaterial();
+
+            
         }
 
 
 
-        public void Update(GameTime gameTime, Camera camera)
+        public void Update(GameTime gameTime, Challenge challenge)
         {
             // Get input from gamepad/keyboard in pi radians...
             Vector3 deltaRotation = RotationInput * (float) Math.PI;
             // And multiply it by seconds elapsed
-            deltaRotation *= (float) gameTime.ElapsedGameTime.Milliseconds * 0.001f;
+            deltaRotation *= (float)gameTime.ElapsedGameTime.Milliseconds * 0.0001f;
 
-            //Matrix cameraRotationMatrix = Matrix.CreateFromYawPitchRoll(camera.Rotation.Y, camera.Rotation.X, camera.Rotation.Z);
-            //Vector3 cameraRight = Vector3.Transform(Vector3.Right, cameraRotationMatrix);
+            // Transform rotation direction for easier controlling ERROR: Gimbal lock
+            Vector3.Transform(deltaRotation, Matrix.CreateFromYawPitchRoll(customModel.Rotation.Y, customModel.Rotation.X,
+                0) * Matrix.CreateFromAxisAngle(Vector3.UnitZ, customModel.Rotation.Z));
 
-            // Create a plane through the camera and player
-            //Plane plane = new Plane(camera.Position, cameraRight, customModel.Position);
-            //Vector3 forward = camera.Position - customModel.Position;
-            //forward.Normalize();
-            //Vector3 up = plane.Normal;
-            //Vector3 right = Vector3.Cross(up, customModel.Position);
-            //right.Normalize();
+            // Add Mod and Apply rotation
+            Vector3 r = customModel.Rotation + deltaRotation;
+            r.X %= MathHelper.TwoPi;
+            r.Y %= MathHelper.TwoPi;
+            r.Z %= MathHelper.TwoPi;
+            customModel.Rotation = r;
 
-            //Quaternion deltaOrientation = 
-            //    Quaternion.CreateFromAxisAngle(up, deltaRotation.Y) * // Yaw
-            //    Quaternion.CreateFromAxisAngle(right, deltaRotation.X) * // Pitch
-            //    Quaternion.CreateFromAxisAngle(Vector3.Backward, deltaRotation.Z); // Roll
+            UpdateColor();
+        }
 
-            // Apply rotation
-            customModel.Rotation *= Quaternion.CreateFromYawPitchRoll(deltaRotation.Y, deltaRotation.X, 0f) * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, deltaRotation.Z); ;
+        private void UpdateColor()
+        {
+            // Change Color from rotation
+            // Y X Z becomes H S V
+            float H, S, V;
+            H = Math.Abs( MathHelper.ToDegrees(customModel.Rotation.Y));
 
-            // Reset rotation on right stick press
-            if (GamePad.GetState(_playerIndex).Buttons.RightStick == ButtonState.Pressed)
-            {
-                customModel.Rotation = Quaternion.CreateFromYawPitchRoll(0f,0f,0f);
-            }
+            //S = (float) (Math.Cos(customModel.Rotation.X) + 1) / 2f;
+            //V = (float) (Math.Cos(customModel.Rotation.Z) + 1) / 2f;
 
-            // Update helping models
-            //rotationalAxisModels[0].Rotation *= Quaternion.CreateFromYawPitchRoll(deltaRotation.Y, deltaRotation.X, 0f) * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, deltaRotation.Z);
-            //rotationalAxisModels[1].Rotation *= Quaternion.CreateFromYawPitchRoll(deltaRotation.Y, 0f, deltaRotation.Z);
-            //rotationalAxisModels[2].Rotation *= Quaternion.CreateFromYawPitchRoll(0f, deltaRotation.X, deltaRotation.Z);
+            S = LinearCosine(customModel.Rotation.X);
+            V = LinearCosine(customModel.Rotation.Z);
 
+            ((SimpleMaterial)customModel.Material).DiffuseColor = ColorHelper.HSVToRGB(new ColorHelper.HSV(H, S, V)).ToColor().ToVector3();
+        }
+
+        private static float LinearCosine(float value)
+        {
+            return Math.Abs((float) (1 - Math.Abs(value % MathHelper.TwoPi) / Math.PI));
         }
 
 
 
-        public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
-        {
-            customModel.Draw(view, projection, cameraPosition);
 
-            //foreach (CustomModel rotationalAxisModel in rotationalAxisModels)
-            //{
-            //    rotationalAxisModel.Draw(view, projection, cameraPosition);
-            //}
+        public void Draw(Camera camera)
+        {
+            customModel.Draw(camera.View, camera.Projection, camera.Position);
         }
 
 
@@ -139,7 +137,7 @@ namespace Alexander_VT19
         #endregion
 
         #region KeyBinds
-        private struct KeyBinds
+        public struct KeyBinds
         {
             public Keys RollPositive;
             public Keys RollNegative;
@@ -157,9 +155,20 @@ namespace Alexander_VT19
                 YawPositive = yawPositive;
                 YawNegative = yawNegative;
             }
+
+            public Keys[] KeyArray =>
+                new Keys[6]
+                {
+                    RollPositive,
+                    RollNegative,
+                    PitchPositive,
+                    PitchNegative,
+                    YawPositive,
+                    YawNegative
+                };
         }
 
-        private static KeyBinds GetKeyBinds(PlayerIndex playerIndex)
+        public static KeyBinds GetKeyBinds(PlayerIndex playerIndex)
         {
             KeyBinds output;
             switch (playerIndex)
@@ -174,7 +183,7 @@ namespace Alexander_VT19
                     output = new KeyBinds(Keys.U, Keys.O, Keys.I, Keys.K, Keys.J, Keys.L);
                     break;
                 case PlayerIndex.Four:
-                    output = new KeyBinds(Keys.LeftControl, Keys.NumPad0, Keys.Up, Keys.Down, Keys.Left, Keys.Right);
+                    output = new KeyBinds(Keys.RightControl, Keys.NumPad0, Keys.Up, Keys.Down, Keys.Left, Keys.Right);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(playerIndex), playerIndex, null);

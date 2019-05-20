@@ -54,10 +54,10 @@ namespace Alexander_VT19
                     return output;
 
                 case 4: // quarters in each corner of window TODO
-                    output[0] = new Rectangle();
-                    output[0] = new Rectangle();
-                    output[0] = new Rectangle();
-                    output[0] = new Rectangle();
+                    output[0] = new Rectangle(0, 0, _screenWidth / 2, _screenHeight / 2);
+                    output[1] = new Rectangle(_screenWidth / 2, 0, _screenWidth / 2, _screenHeight / 2);
+                    output[2] = new Rectangle(0, _screenHeight / 2, _screenWidth / 2, _screenHeight / 2);
+                    output[3] = new Rectangle(_screenWidth / 2, _screenHeight / 2, _screenWidth / 2, _screenHeight / 2);
                     return output;
 
                 default: throw new ArgumentOutOfRangeException();
