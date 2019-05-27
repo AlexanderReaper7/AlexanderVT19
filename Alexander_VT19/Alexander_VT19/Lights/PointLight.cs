@@ -13,74 +13,74 @@ namespace Alexander_VT19.Lights
     class PointLight
     {
         //Position
-        Vector3 position;
+        Vector3 _position;
         //Radius
-        float radius;
+        float _radius;
         //Color
-        Vector4 color;
+        Vector4 _color;
         //Intensity
-        float intensity;
+        float _intensity;
         //ShadowMap
-        RenderTargetCube shadowMap;
+        RenderTargetCube _shadowMap;
         //Is this Light with Shadows?
-        bool isWithShadows;
+        bool _isWithShadows;
         //Shadow Map Resoloution
-        int shadowMapResoloution;
+        int _shadowMapResoloution;
         #region Get Functions
         //Get Position
-        public Vector3 getPosition() { return position; }
+        public Vector3 GetPosition() { return _position; }
         //Get Radius
-        public float getRadius() { return radius; }
+        public float GetRadius() { return _radius; }
         //Get Color
-        public Vector4 getColor() { return color; }
+        public Vector4 GetColor() { return _color; }
         //Get Intensity
-        public float getIntensity() { return intensity; }
+        public float GetIntensity() { return _intensity; }
         //Get IsWithShadows
-        public bool getIsWithShadows() { return isWithShadows; }
+        public bool GetIsWithShadows() { return _isWithShadows; }
         //Get ShadowMapResoloution
-        public int getShadowMapResoloution()
+        public int GetShadowMapResoloution()
         {
-            if (shadowMapResoloution < 2048) return shadowMapResoloution;
+            if (_shadowMapResoloution < 2048) return _shadowMapResoloution;
             else return 2048;
         }
         //Get DepthBias
-        public float getDepthBias() { return (1.0f / (20 * radius)); }
+        public float GetDepthBias() { return (1.0f / (20 * _radius)); }
         //Get ShadowMap
-        public RenderTargetCube getShadowMap() { return shadowMap; }
+        public RenderTargetCube GetShadowMap() { return _shadowMap; }
         #endregion
         #region Set Functions
         //Set Position
-        public void setPosition(Vector3 position) { this.position = position; }
+        public void SetPosition(Vector3 position) { this._position = position; }
         //Set Radius
-        public void setRadius(float radius) { this.radius = radius; }
+        public void SetRadius(float radius) { this._radius = radius; }
         //Set Color
-        public void setColor(Color color) { this.color = color.ToVector4(); }
+        public void SetColor(Color color) { this._color = color.ToVector4(); }
         //Set Color
-        public void setColor(Vector4 color) { this.color = color; }
+        public void SetColor(Vector4 color) { this._color = color; }
         //Set Intensity
-        public void setIntensity(float intensity) { this.intensity = intensity; }
+        public void SetIntensity(float intensity) { this._intensity = intensity; }
         //Set isWithShadows
-        public void setIsWithShadows(bool shadows) { this.isWithShadows = shadows; }
+        public void SetIsWithShadows(bool shadows) { this._isWithShadows = shadows; }
         #endregion
         //Constructor
-        public PointLight(GraphicsDevice GraphicsDevice, Vector3 Position, float Radius,
-       Vector4 Color, float Intensity, bool isWithShadows,
+        public PointLight(GraphicsDevice graphicsDevice, Vector3 position, float radius,
+       Vector4 color, float intensity, bool isWithShadows,
        int shadowMapResoloution)
         {
             //Set Position
-            setPosition(Position);
+            SetPosition(position);
             //Set Radius
-            setRadius(Radius);
+            SetRadius(radius);
             //Set Color
-            setColor(Color);
+            SetColor(color);
             //Set Intensity
-            setIntensity(Intensity);
+            SetIntensity(intensity);
             //Set isWithShadows
-            this.isWithShadows = isWithShadows;
+            this._isWithShadows = isWithShadows;
             //Set shadowMapResoloution
-            this.shadowMapResoloution = shadowMapResoloution;
+            this._shadowMapResoloution = shadowMapResoloution;
             //Make ShadowMap
-            shadowMap = new RenderTargetCube(GraphicsDevice, getShadowMapResoloution(),
+            _shadowMap = new RenderTargetCube(graphicsDevice, GetShadowMapResoloution(),
            false, SurfaceFormat.Single,
            DepthFormat.Depth24Stencil8);
         }
@@ -88,9 +88,9 @@ namespace Alexander_VT19.Lights
         public Matrix World()
         {
             //Make Scaling Matrix
-            Matrix scale = Matrix.CreateScale(radius / 100.0f);
+            Matrix scale = Matrix.CreateScale(_radius / 100.0f);
             //Make Translation Matrix
-            Matrix translation = Matrix.CreateTranslation(position);
+            Matrix translation = Matrix.CreateTranslation(_position);
             //Return World Transform
             return (scale * translation);
         }

@@ -9,46 +9,46 @@ namespace Alexander_VT19.Lights
     class DirectionalLight
     {
         //Direction
-        Vector3 direction;
+        Vector3 _direction;
         //Color
-        Vector4 color;
+        Vector4 _color;
         //Intensity
-        float intensity;
+        float _intensity;
 
         #region Get Functions
         //Get Direction
-        public Vector3 getDirection() { return direction; }
+        public Vector3 GetDirection() { return _direction; }
         //Get Color
-        public Vector4 getColor() { return color; }
+        public Vector4 GetColor() { return _color; }
         //Get Intensity
-        public float getIntensity() { return intensity; }
+        public float GetIntensity() { return _intensity; }
         #endregion
 
         #region Set Functions
         //Set Direction
-        public void setDirection(Vector3 dir) { dir.Normalize(); this.direction = dir; }
+        public void SetDirection(Vector3 dir) { dir.Normalize(); this._direction = dir; }
         //Set Color
-        public void setColor(Vector4 color) { this.color = color; }
+        public void SetColor(Vector4 color) { this._color = color; }
         //Set Color
-        public void setColor(Color color) { this.color = color.ToVector4(); }
+        public void SetColor(Color color) { this._color = color.ToVector4(); }
         //Set Intensity
-        public void setIntensity(float intensity) { this.intensity = intensity; }
+        public void SetIntensity(float intensity) { this._intensity = intensity; }
         #endregion
 
         //Constructor
-        public DirectionalLight(Vector3 Direction, Vector4 Color, float Intensity)
+        public DirectionalLight(Vector3 direction, Vector4 color, float intensity)
         {
-            setDirection(Direction);
-            setColor(Color);
-            setIntensity(Intensity);
+            SetDirection(direction);
+            SetColor(color);
+            SetIntensity(intensity);
         }
 
         //Constructor
-        public DirectionalLight(Vector3 Direction, Color Color, float Intensity)
+        public DirectionalLight(Vector3 direction, Color color, float intensity)
         {
-            setDirection(Direction);
-            setColor(Color);
-            setIntensity(Intensity);
+            SetDirection(direction);
+            SetColor(color);
+            SetIntensity(intensity);
         }
     }
 }

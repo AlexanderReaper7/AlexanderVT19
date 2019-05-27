@@ -75,6 +75,7 @@
     <Compile Include="Camera\Camera.cs" />
     <Compile Include="Camera\CameraManager.cs" />
     <Compile Include="Camera\ChaseCamera.cs" />
+    <Compile Include="ExtendedSpriteBatch.cs" />
     <Compile Include="InGame\ChallengeManager.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="CustomModel.cs" />
@@ -88,10 +89,16 @@
     <Compile Include="Lights\LightManager.cs" />
     <Compile Include="Lights\PointLight.cs" />
     <Compile Include="Lights\SpotLight.cs" />
-    <Compile Include="Material.cs" />
+    <Compile Include="Materials\LightingMaterial.cs" />
+    <Compile Include="Materials\Material.cs" />
+    <Compile Include="Materials\NeonBackground.cs" />
+    <Compile Include="Materials\SimpleMaterial.cs" />
+    <Compile Include="Materials\SpotlightMaterial.cs" />
+    <Compile Include="Materials\Voronoi.cs" />
     <Compile Include="PlayerSelectMenu\PlayerSelectMenu.cs" />
+    <Compile Include="QuadRenderer.cs" />
     <Compile Include="SkyBox\NeonSkybox.cs" />
-    <Compile Include="InGame\Obstacle.cs" />
+    <Compile Include="InGame\Challenge.cs" />
     <Compile Include="Particle\ParticleSystem.cs" />
     <Compile Include="Particle\ParticleVerrtex.cs" />
     <Compile Include="InGame\Player.cs" />

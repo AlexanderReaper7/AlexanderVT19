@@ -10,24 +10,59 @@ namespace Alexander_VT19
 {
     class NeonSkybox
     {
-        private TextureCube maskTextureCube;
+        private GraphicsDevice _graphicsDevice;
+        private QuadRenderer _quadRenderer;
 
+        private RenderTargetCube _renderTargetCube;
 
-        private SkyBox skyBox;
+        private Effect _fillEffect;
+        public SkyBox SkyBox;
         private Vector3 _color;
 
-        public Vector3 Color
-        {
-            get { return _color; }
-            set { _color = value; }
-        }
+        private NeonBackground _neon;
 
         public NeonSkybox(ContentManager content, GraphicsDevice graphicsDevice)
         {
-            RenderTargetCube renderTargetCube = new RenderTargetCube(graphicsDevice, 2048, false, SurfaceFormat.Vector4, DepthFormat.None);
-            skyBox = new SkyBox(content, graphicsDevice, renderTargetCube);
+            _graphicsDevice = graphicsDevice;
+            _quadRenderer = new QuadRenderer(graphicsDevice);
+
+            _fillEffect = content.Load<Effect>(@"Effects/Fill");
+            _renderTargetCube = new RenderTargetCube(graphicsDevice, 4096, false, SurfaceFormat.Color, DepthFormat.None, 4, RenderTargetUsage.DiscardContents);
+
+
+            _neon = NeonBackground.CreateNew(content);
+
+
+            RenderTextureCube();
+
+            SkyBox = new SkyBox(content, graphicsDevice, _renderTargetCube);
         }
 
 
+        public void Update()
+        {
+            RenderTextureCube();
+        }
+
+
+        public void Draw(Camera camera, GameTime gameTime)
+        {
+            _neon.UpdateEffectParameters(gameTime);
+
+            SkyBox.SetTexture(_renderTargetCube);
+            SkyBox.Draw(camera);
+        }
+
+        private void RenderTextureCube()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                _graphicsDevice.SetRenderTarget(_renderTargetCube, (CubeMapFace)i);
+                _quadRenderer.Render(_fillEffect);
+                _quadRenderer.Render(_neon.Effect);
+            }
+
+            _graphicsDevice.SetRenderTarget(null);
+        }
     }
 }

@@ -11,22 +11,22 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Alexander_VT19
 {
+    public enum GameStates
+    {
+        InGame,
+        PlayerSelection,
+        Exit
+    }
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-        private static GameStates _gameState = GameStates.InGame;
+
+        private static GameStates _gameState;
         private static GameStates _nextGameState;
-        public enum GameStates
-        {
-            MainMenu,
-            InGame,
-            PlayerSelection,
-            Exit
-        }
 
         public static GameStates GameState
         {
@@ -42,7 +42,6 @@ namespace Alexander_VT19
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             _graphics.PreferMultiSampling = true;
-
             IsFixedTimeStep = false;
 
             //_graphics.IsFullScreen = true;
@@ -65,13 +64,14 @@ namespace Alexander_VT19
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+            const GameStates firstGameState = GameStates.PlayerSelection;
+            _gameState = firstGameState;
+            _nextGameState = firstGameState;
+
             // Load InGame
             InGame.LoadContent(Content, GraphicsDevice);
 
-            PlayerSelectMenu.LoadContent(Content, GraphicsDevice, _spriteBatch);
+            PlayerSelectMenu.LoadContent(Content, GraphicsDevice);
         }
 
         /// <summary>
@@ -80,6 +80,7 @@ namespace Alexander_VT19
         /// </summary>
         protected override void UnloadContent()
         {
+            
         }
 
         /// <summary>
@@ -98,8 +99,6 @@ namespace Alexander_VT19
 
             switch (GameState)
             {
-                case GameStates.MainMenu:
-                    break;
                 case GameStates.InGame:
                     InGame.Update(gameTime);
                     break;
@@ -124,16 +123,13 @@ namespace Alexander_VT19
         {
             switch (GameState)
             {
-                case GameStates.MainMenu:
-                    
-                    break;
                 case GameStates.InGame:
-                    InGame.Draw();
+                    InGame.Draw(gameTime);
                     break;
                 case GameStates.Exit:
                     break;
                 case GameStates.PlayerSelection:
-                    PlayerSelectMenu.Draw();
+                    PlayerSelectMenu.Draw(gameTime);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -146,7 +142,7 @@ namespace Alexander_VT19
         private void FinalUpdate()
         {
             // Update Game State
-            // _gameState = _nextGameState;
+            _gameState = _nextGameState;
         }
     }
 }

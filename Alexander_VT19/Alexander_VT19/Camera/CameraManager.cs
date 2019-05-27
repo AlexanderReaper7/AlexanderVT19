@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Alexander_VT19
 {
-    public enum Cameras : byte
+    public enum Cameras
     {
         Free,
         Static1
@@ -15,7 +15,6 @@ namespace Alexander_VT19
     /// </summary>
     public class CameraManager
     {
-        private ChaseCamera _chaseCamera;
         private FreeCamera _freeCamera;
         private StaticCamera _staticCamera1;
 
@@ -45,7 +44,7 @@ namespace Alexander_VT19
             }
         }
 
-        public CameraManager( FreeCamera freeCamera, StaticCamera stc1, Cameras initialSelectedCamera)
+        public CameraManager(FreeCamera freeCamera, StaticCamera stc1, Cameras initialSelectedCamera)
         {
             _freeCamera = freeCamera;
             _staticCamera1 = stc1;
@@ -73,6 +72,9 @@ namespace Alexander_VT19
 
         }
 
+        /// <summary>
+        /// Updates Chase camera movement
+        /// </summary>
         private void UpdateChaseCamera(ChaseCamera camera, CustomModel targetModel)
         {
             // Move camera position and rotation relative to box 

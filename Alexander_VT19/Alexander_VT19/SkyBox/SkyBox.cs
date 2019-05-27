@@ -39,28 +39,25 @@ namespace Alexander_VT19
         /// Loads a new texture to the SkyBox
         /// </summary>
         /// <param name="texture"></param>
-        public void LoadTexture(TextureCube texture)
+        public void SetTexture(TextureCube texture)
         {
             _skySphereEffect.Parameters["CubeMap"].SetValue(texture);
-            _model.SetModelEffect(_skySphereEffect, false);
+            _model.SetModelEffect(_skySphereEffect, true);
         }
 
         /// <summary>
         /// Draws the SkyBox
         /// </summary>
-        /// <param name="view"></param>
-        /// <param name="projection"></param>
-        /// <param name="cameraPosition"></param>
-        public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
+        public void Draw(Camera camera)
         {
             // Disable the DepthStencil
             _graphics.DepthStencilState = DepthStencilState.None;
 
             // Move the model with the sphere
-            _model.Position = cameraPosition;
+            _model.Position = camera.Position;
 
             // Draw the sphere (SkyBox)
-            _model.Draw(view, projection, cameraPosition);
+            _model.Draw(camera.View, camera.Projection, camera.Position);
 
             // Reset the DepthStencil
             _graphics.DepthStencilState = DepthStencilState.Default;

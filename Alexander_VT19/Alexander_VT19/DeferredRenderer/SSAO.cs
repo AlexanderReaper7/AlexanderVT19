@@ -9,168 +9,168 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Alexander_VT19
 {
-    class SSAO
+    class Ssao
     {
         //SSAO effect
-        Effect ssao;
+        Effect _ssao;
         //SSAO Blur Effect
-        Effect ssaoBlur;
+        Effect _ssaoBlur;
         //SSAO Composition effect
-        Effect composer;
+        Effect _composer;
         //Random Normal Texture
-        Texture2D randomNormals;
+        Texture2D _randomNormals;
         //Sample Radius
-        float sampleRadius;
+        float _sampleRadius;
         //Distance Scale
-        float distanceScale;
+        float _distanceScale;
         //SSAO Target
-        RenderTarget2D SSAOTarget;
+        RenderTarget2D _ssaoTarget;
         //Blue Target
-        RenderTarget2D BlurTarget;
+        RenderTarget2D _blurTarget;
         //FSQ
-        FullscreenQuad fsq;
+        FullscreenQuad _fsq;
         #region Get Methods
         //Get Sample Radius
-        float getSampleRadius() { return sampleRadius; }
+        float GetSampleRadius() { return _sampleRadius; }
         //Get Distance Scale
-        float getDistanceScale() { return distanceScale; }
+        float GetDistanceScale() { return _distanceScale; }
         #endregion
         #region Set Methods
         //Set Sample Radius
-        void setSampleRadius(float radius) { this.sampleRadius = radius; }
+        void SetSampleRadius(float radius) { this._sampleRadius = radius; }
         //Set Distance Scale
-        void setDistanceScale(float scale) { this.distanceScale = scale; }
+        void SetDistanceScale(float scale) { this._distanceScale = scale; }
         #endregion
         //Constructor
-        public SSAO(GraphicsDevice GraphicsDevice, ContentManager Content,
-            int Width, int Height)
+        public Ssao(GraphicsDevice graphicsDevice, ContentManager content,
+            int width, int height)
         {
             //Load SSAO effect
-            ssao = Content.Load<Effect>("Effects/SSAO");
-            ssao.CurrentTechnique = ssao.Techniques[0];
+            _ssao = content.Load<Effect>("Effects/SSAO");
+            _ssao.CurrentTechnique = _ssao.Techniques[0];
             //Load SSAO Blur effect
-            ssaoBlur = Content.Load<Effect>("Effects/SSAOBlur");
-            ssaoBlur.CurrentTechnique = ssaoBlur.Techniques[0];
+            _ssaoBlur = content.Load<Effect>("Effects/SSAOBlur");
+            _ssaoBlur.CurrentTechnique = _ssaoBlur.Techniques[0];
             //Load SSAO composition effect
-            composer = Content.Load<Effect>("Effects/SSAOFinal");
-            composer.CurrentTechnique = composer.Techniques[0];
+            _composer = content.Load<Effect>("Effects/SSAOFinal");
+            _composer.CurrentTechnique = _composer.Techniques[0];
             //Create SSAO Target
-            SSAOTarget = new RenderTarget2D(GraphicsDevice, Width, Height, false,
+            _ssaoTarget = new RenderTarget2D(graphicsDevice, width, height, false,
                 SurfaceFormat.Color, DepthFormat.None);
             //Create SSAO Blur Target
-            BlurTarget = new RenderTarget2D(GraphicsDevice, Width, Height, false,
+            _blurTarget = new RenderTarget2D(graphicsDevice, width, height, false,
                 SurfaceFormat.Color, DepthFormat.None);
             //Create FSQ
-            fsq = new FullscreenQuad(GraphicsDevice);
+            _fsq = new FullscreenQuad(graphicsDevice);
             //Load Random Normal Texture
-            randomNormals = Content.Load<Texture2D>("null_normal");
+            _randomNormals = content.Load<Texture2D>("null_normal");
 
             //Set Sample Radius to Default
-            sampleRadius = 0;
+            _sampleRadius = 0;
             //Set Distance Scale to Default
-            distanceScale = 0;
+            _distanceScale = 0;
         }
 
         //Draw
-        public void Draw(GraphicsDevice GraphicsDevice, RenderTargetBinding[] GBuffer,
-            RenderTarget2D Scene, Camera Camera, RenderTarget2D Output)
+        public void Draw(GraphicsDevice graphicsDevice, RenderTargetBinding[] gBuffer,
+            RenderTarget2D scene, Camera camera, RenderTarget2D output)
         {
             //Set States
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             //Render SSAO
-            RenderSSAO(GraphicsDevice, GBuffer, Camera);
+            RenderSsao(graphicsDevice, gBuffer, camera);
             //Blur SSAO
-            BlurSSAO(GraphicsDevice);
+            BlurSsao(graphicsDevice);
             //Compose final
-            Compose(GraphicsDevice, Scene, Output, true);
+            Compose(graphicsDevice, scene, output, true);
         }
 
         //Render SSAO
-        void RenderSSAO(GraphicsDevice GraphicsDevice, RenderTargetBinding[] GBuffer,
-            Camera Camera)
+        void RenderSsao(GraphicsDevice graphicsDevice, RenderTargetBinding[] gBuffer,
+            Camera camera)
         {
             //Set SSAO Target
-            GraphicsDevice.SetRenderTarget(SSAOTarget);
+            graphicsDevice.SetRenderTarget(_ssaoTarget);
             //Clear
-            GraphicsDevice.Clear(Color.White);
+            graphicsDevice.Clear(Color.White);
             //Set Samplers
-            GraphicsDevice.Textures[1] = GBuffer[1].RenderTarget;
-            GraphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
-            GraphicsDevice.Textures[2] = GBuffer[1].RenderTarget;
-            GraphicsDevice.SamplerStates[2] = SamplerState.PointClamp;
-            GraphicsDevice.Textures[3] = randomNormals;
-            GraphicsDevice.SamplerStates[3] = SamplerState.LinearWrap;
+            graphicsDevice.Textures[1] = gBuffer[1].RenderTarget;
+            graphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
+            graphicsDevice.Textures[2] = gBuffer[1].RenderTarget;
+            graphicsDevice.SamplerStates[2] = SamplerState.PointClamp;
+            graphicsDevice.Textures[3] = _randomNormals;
+            graphicsDevice.SamplerStates[3] = SamplerState.LinearWrap;
             //Calculate Frustum Corner of the Camera
             Vector3 cornerFrustum = Vector3.Zero;
-            cornerFrustum.Y = (float)Math.Tan(Math.PI / 3.0 / 2.0) * Camera.FarClip;
-            cornerFrustum.X = cornerFrustum.Y * Camera.AspectRatio;
-            cornerFrustum.Z = Camera.FarClip;
+            cornerFrustum.Y = (float)Math.Tan(Math.PI / 3.0 / 2.0) * camera.FarClip;
+            cornerFrustum.X = cornerFrustum.Y * camera.AspectRatio;
+            cornerFrustum.Z = camera.FarClip;
             //Set SSAO parameters
-            ssao.Parameters["Projection"].SetValue(Camera.Projection);
-            ssao.Parameters["cornerFustrum"].SetValue(cornerFrustum);
-            ssao.Parameters["sampleRadius"].SetValue(sampleRadius);
-            ssao.Parameters["distanceScale"].SetValue(distanceScale);
-            ssao.Parameters["GBufferTextureSize"].SetValue(new Vector2(SSAOTarget.Width,
-                SSAOTarget.Height));
+            _ssao.Parameters["Projection"].SetValue(camera.Projection);
+            _ssao.Parameters["cornerFustrum"].SetValue(cornerFrustum);
+            _ssao.Parameters["sampleRadius"].SetValue(_sampleRadius);
+            _ssao.Parameters["distanceScale"].SetValue(_distanceScale);
+            _ssao.Parameters["GBufferTextureSize"].SetValue(new Vector2(_ssaoTarget.Width,
+                _ssaoTarget.Height));
             //Apply
-            ssao.CurrentTechnique.Passes[0].Apply();
+            _ssao.CurrentTechnique.Passes[0].Apply();
             //Draw
-            fsq.Draw(GraphicsDevice);
+            _fsq.Draw(graphicsDevice);
         }
 
         //Blur SSAO
-        void BlurSSAO(GraphicsDevice GraphicsDevice)
+        void BlurSsao(GraphicsDevice graphicsDevice)
         {
             //Set Blur Target
-            GraphicsDevice.SetRenderTarget(BlurTarget);
+            graphicsDevice.SetRenderTarget(_blurTarget);
             //Clear
-            GraphicsDevice.Clear(Color.White);
+            graphicsDevice.Clear(Color.White);
             //Set Samplers, GBuffer was set before so no need to reset...
-            GraphicsDevice.Textures[3] = SSAOTarget;
-            GraphicsDevice.SamplerStates[3] = SamplerState.LinearClamp;
+            graphicsDevice.Textures[3] = _ssaoTarget;
+            graphicsDevice.SamplerStates[3] = SamplerState.LinearClamp;
             //Set SSAO parameters
-            ssaoBlur.Parameters["blurDirection"].SetValue(Vector2.One);
-            ssaoBlur.Parameters["targetSize"].SetValue(new Vector2(SSAOTarget.Width,
-                SSAOTarget.Height));
+            _ssaoBlur.Parameters["blurDirection"].SetValue(Vector2.One);
+            _ssaoBlur.Parameters["targetSize"].SetValue(new Vector2(_ssaoTarget.Width,
+                _ssaoTarget.Height));
             //Apply
-            ssaoBlur.CurrentTechnique.Passes[0].Apply();
+            _ssaoBlur.CurrentTechnique.Passes[0].Apply();
             //Draw
-            fsq.Draw(GraphicsDevice);
+            _fsq.Draw(graphicsDevice);
         }
 
         //Compose
-        void Compose(GraphicsDevice GraphicsDevice, RenderTarget2D Scene, RenderTarget2D
-            Output, bool useBlurredSSAO)
+        void Compose(GraphicsDevice graphicsDevice, RenderTarget2D scene, RenderTarget2D
+            output, bool useBlurredSsao)
         {
             //Set Output Target
-            GraphicsDevice.SetRenderTarget(Output);
+            graphicsDevice.SetRenderTarget(output);
             //Clear
-            GraphicsDevice.Clear(Color.White);
+            graphicsDevice.Clear(Color.White);
             //Set Samplers
-            GraphicsDevice.Textures[0] = Scene;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-            if (useBlurredSSAO) GraphicsDevice.Textures[1] = BlurTarget;
-            else GraphicsDevice.Textures[1] = SSAOTarget;
-            GraphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
+            graphicsDevice.Textures[0] = scene;
+            graphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+            if (useBlurredSsao) graphicsDevice.Textures[1] = _blurTarget;
+            else graphicsDevice.Textures[1] = _ssaoTarget;
+            graphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
             //Set Effect Parameters
-            composer.Parameters["halfPixel"].SetValue(new Vector2(1.0f / SSAOTarget.Width,
-                1.0f / SSAOTarget.Height));
+            _composer.Parameters["halfPixel"].SetValue(new Vector2(1.0f / _ssaoTarget.Width,
+                1.0f / _ssaoTarget.Height));
             //Apply
-            composer.CurrentTechnique.Passes[0].Apply();
+            _composer.CurrentTechnique.Passes[0].Apply();
             //Draw
-            fsq.Draw(GraphicsDevice);
+            _fsq.Draw(graphicsDevice);
         }
 
         //Modify
-        public void Modify(KeyboardState Current)
+        public void Modify(KeyboardState current)
         {
             float speed = 0.01f;
-            if (Current.IsKeyDown(Keys.Z)) sampleRadius -= speed;
-            if (Current.IsKeyDown(Keys.X)) sampleRadius += speed;
-            if (Current.IsKeyDown(Keys.C)) distanceScale -= speed;
-            if (Current.IsKeyDown(Keys.V)) distanceScale += speed;
+            if (current.IsKeyDown(Keys.Z)) _sampleRadius -= speed;
+            if (current.IsKeyDown(Keys.X)) _sampleRadius += speed;
+            if (current.IsKeyDown(Keys.C)) _distanceScale -= speed;
+            if (current.IsKeyDown(Keys.V)) _distanceScale += speed;
         }
         //Debug Values
         public void Debug(SpriteBatch spriteBatch, SpriteFont spriteFont)
@@ -184,19 +184,19 @@ namespace Alexander_VT19
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque,
                 SamplerState.LinearClamp, null, null);
             //Draw SSAO buffer
-            spriteBatch.Draw((Texture2D)SSAOTarget, rect, Color.White);
+            spriteBatch.Draw((Texture2D)_ssaoTarget, rect, Color.White);
             //Draw SSAO Blurred
             rect.X += 128;
-            spriteBatch.Draw((Texture2D)BlurTarget, rect, Color.White);
+            spriteBatch.Draw((Texture2D)_blurTarget, rect, Color.White);
             //End SpriteBatch
             spriteBatch.End();
             //Begin SpriteBatch for Text
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
             //Draw sampleRadius
-            spriteBatch.DrawString(spriteFont, "Sample Radius: " + sampleRadius.ToString(),
+            spriteBatch.DrawString(spriteFont, "Sample Radius: " + _sampleRadius.ToString(),
                 new Vector2(0, 128), Color.Red);
             //Draw distanceScale
-            spriteBatch.DrawString(spriteFont, "Distance Scale: " + distanceScale.ToString(),
+            spriteBatch.DrawString(spriteFont, "Distance Scale: " + _distanceScale.ToString(),
                 new Vector2(0, 148), Color.Blue);
             //End SpriteBatch
             spriteBatch.End();

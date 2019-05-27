@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DELTA 
+
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -18,10 +20,10 @@ namespace Alexander_VT19
 
     public class Player
     {
-        public CustomModel customModel;
+        public CustomModel CustomModel;
         private PlayerIndex _playerIndex;
         private InputMethod _preferredInputMethod;
-        private KeyBinds keyBinds;
+        private KeyBinds _keyBinds;
 
         private Vector3 RotationInput
         {
@@ -44,63 +46,55 @@ namespace Alexander_VT19
         {
             _playerIndex = playerIndex;
             _preferredInputMethod = preferredInputMethod;
-            keyBinds = GetKeyBinds(_playerIndex);
-            customModel = model;
-            customModel.Material = new SimpleMaterial();
+            _keyBinds = GetKeyBinds(_playerIndex);
+            CustomModel = model;
+            CustomModel.Material = new SimpleMaterial();
 
             
         }
 
 
-
-        public void Update(GameTime gameTime, Challenge challenge)
+        /// <summary>
+        /// Updates Player logic
+        /// </summary>
+        /// <param name="gameTime"></param>
+        public void Update(GameTime gameTime)
         {
+#if DELTA
             // Get input from gamepad/keyboard in pi radians...
             Vector3 deltaRotation = RotationInput * (float) Math.PI;
             // And multiply it by seconds elapsed
-            deltaRotation *= (float)gameTime.ElapsedGameTime.Milliseconds * 0.0001f;
+            deltaRotation *= (float)gameTime.ElapsedGameTime.Milliseconds * 0.001f;
 
-            // Transform rotation direction for easier controlling ERROR: Gimbal lock
-            Vector3.Transform(deltaRotation, Matrix.CreateFromYawPitchRoll(customModel.Rotation.Y, customModel.Rotation.X,
-                0) * Matrix.CreateFromAxisAngle(Vector3.UnitZ, customModel.Rotation.Z));
-
-            // Add Mod and Apply rotation
-            Vector3 r = customModel.Rotation + deltaRotation;
-            r.X %= MathHelper.TwoPi;
-            r.Y %= MathHelper.TwoPi;
-            r.Z %= MathHelper.TwoPi;
-            customModel.Rotation = r;
+            Vector3 newRotation = CustomModel.Rotation + deltaRotation;
+#endif
+#if ABSOLUTE
+            // Get input from gamepad/keyboard in pi radians...
+            Vector3 newRotation = RotationInput * (float)Math.PI;
+#endif
+            // "loop" using modulus
+            newRotation.X %= MathHelper.TwoPi;
+            newRotation.Y %= MathHelper.TwoPi;
+            newRotation.Z %= MathHelper.TwoPi;
+            // Apply rotation to model
+            CustomModel.Rotation = newRotation;
 
             UpdateColor();
         }
 
+        /// <summary>
+        /// Sets the new color to the model based on the current rotation
+        /// </summary>
         private void UpdateColor()
         {
-            // Change Color from rotation
-            // Y X Z becomes H S V
-            float H, S, V;
-            H = Math.Abs( MathHelper.ToDegrees(customModel.Rotation.Y));
-
-            //S = (float) (Math.Cos(customModel.Rotation.X) + 1) / 2f;
-            //V = (float) (Math.Cos(customModel.Rotation.Z) + 1) / 2f;
-
-            S = LinearCosine(customModel.Rotation.X);
-            V = LinearCosine(customModel.Rotation.Z);
-
-            ((SimpleMaterial)customModel.Material).DiffuseColor = ColorHelper.HSVToRGB(new ColorHelper.HSV(H, S, V)).ToColor().ToVector3();
+            ((SimpleMaterial)CustomModel.Material).DiffuseColor = ColorHelper.CalculateColorFromRotation(CustomModel.Rotation).ToVector3();
         }
-
-        private static float LinearCosine(float value)
-        {
-            return Math.Abs((float) (1 - Math.Abs(value % MathHelper.TwoPi) / Math.PI));
-        }
-
 
 
 
         public void Draw(Camera camera)
         {
-            customModel.Draw(camera.View, camera.Projection, camera.Position);
+            CustomModel.Draw(camera.View, camera.Projection, camera.Position);
         }
 
 
@@ -124,14 +118,14 @@ namespace Alexander_VT19
             KeyboardState keyboard = Keyboard.GetState();
             float roll = 0f, pitch = 0f, yaw = 0f;
             // Roll
-            if (keyboard.IsKeyDown(keyBinds.RollPositive)) roll++;
-            if (keyboard.IsKeyDown(keyBinds.RollNegative)) roll--;
+            if (keyboard.IsKeyDown(_keyBinds.RollPositive)) roll++;
+            if (keyboard.IsKeyDown(_keyBinds.RollNegative)) roll--;
             // Pitch
-            if (keyboard.IsKeyDown(keyBinds.PitchPositive)) pitch++;
-            if (keyboard.IsKeyDown(keyBinds.PitchNegative)) pitch--;
+            if (keyboard.IsKeyDown(_keyBinds.PitchPositive)) pitch++;
+            if (keyboard.IsKeyDown(_keyBinds.PitchNegative)) pitch--;
             // Yaw
-            if (keyboard.IsKeyDown(keyBinds.YawPositive)) yaw++;
-            if (keyboard.IsKeyDown(keyBinds.YawNegative)) yaw--;
+            if (keyboard.IsKeyDown(_keyBinds.YawPositive)) yaw++;
+            if (keyboard.IsKeyDown(_keyBinds.YawNegative)) yaw--;
             return new Vector3(yaw, pitch, roll);
         }
         #endregion

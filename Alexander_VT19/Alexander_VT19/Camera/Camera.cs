@@ -5,28 +5,28 @@ namespace Alexander_VT19
 {
     public abstract class Camera
     {
-        private Matrix view;
-        private Matrix projection;
+        private Matrix _view;
+        private Matrix _projection;
 
         public Matrix Projection
         {
-            get { return projection; }
+            get { return _projection; }
 
             protected set
             {
-                projection = value;
-                generateFrustrum();
+                _projection = value;
+                GenerateFrustum();
             }
         }
 
         public Matrix View
         {
-            get { return view; }
+            get { return _view; }
 
             protected set
             {
-                view = value;
-                generateFrustrum();
+                _view = value;
+                GenerateFrustum();
             }
         }
 
@@ -71,7 +71,7 @@ namespace Alexander_VT19
 
         }
 
-        private void generateFrustrum()
+        private void GenerateFrustum()
         {
             Matrix viewProjection = View * Projection;
             Frustum = new BoundingFrustum(viewProjection);

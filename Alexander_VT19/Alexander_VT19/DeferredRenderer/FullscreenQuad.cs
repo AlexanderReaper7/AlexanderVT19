@@ -10,11 +10,11 @@ namespace Alexander_VT19
     class FullscreenQuad
     {
         //Vertex Buffer
-        VertexBuffer vb;
+        VertexBuffer _vb;
         //Index Buffer
-        IndexBuffer ib;
+        IndexBuffer _ib;
         //Constructor
-        public FullscreenQuad(GraphicsDevice GraphicsDevice)
+        public FullscreenQuad(GraphicsDevice graphicsDevice)
         {
             //Vertices
             VertexPositionTexture[] vertices =
@@ -25,39 +25,39 @@ namespace Alexander_VT19
                 new VertexPositionTexture(new Vector3(1, 1, 0), new Vector2(1, 0))
             };
             //Make Vertex Buffer
-            vb = new VertexBuffer(GraphicsDevice, VertexPositionTexture.VertexDeclaration,
+            _vb = new VertexBuffer(graphicsDevice, VertexPositionTexture.VertexDeclaration,
                 vertices.Length, BufferUsage.None);
-            vb.SetData<VertexPositionTexture>(vertices);
+            _vb.SetData<VertexPositionTexture>(vertices);
             //Indices
             ushort[] indices = { 0, 1, 2, 2, 3, 0 };
             //Make Index Buffer
-            ib = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits,
+            _ib = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits,
                 indices.Length, BufferUsage.None);
-            ib.SetData<ushort>(indices);
+            _ib.SetData<ushort>(indices);
         }
         //Draw and Set Buffers
-        public void Draw(GraphicsDevice GraphicsDevice)
+        public void Draw(GraphicsDevice graphicsDevice)
         {
             //Set Vertex Buffer
-            GraphicsDevice.SetVertexBuffer(vb);
+            graphicsDevice.SetVertexBuffer(_vb);
             //Set Index Buffer
-            GraphicsDevice.Indices = ib;
+            graphicsDevice.Indices = _ib;
             //Draw Quad
-            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4, 0, 2);
+            graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4, 0, 2);
         }
         //Set Buffers Onto GPU
-        public void ReadyBuffers(GraphicsDevice GraphicsDevice)
+        public void ReadyBuffers(GraphicsDevice graphicsDevice)
         {
             //Set Vertex Buffer
-            GraphicsDevice.SetVertexBuffer(vb);
+            graphicsDevice.SetVertexBuffer(_vb);
             //Set Index Buffer
-            GraphicsDevice.Indices = ib;
+            graphicsDevice.Indices = _ib;
         }
         //Draw without Setting Buffers
-        public void JustDraw(GraphicsDevice GraphicsDevice)
+        public void JustDraw(GraphicsDevice graphicsDevice)
         {
             //Draw Quad
-            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4, 0, 2);
+            graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4, 0, 2);
         }
     }
 }

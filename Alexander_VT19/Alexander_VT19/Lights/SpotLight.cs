@@ -13,134 +13,134 @@ namespace Alexander_VT19.Lights
     class SpotLight
     {
         //Position
-        Vector3 position;
+        Vector3 _position;
         //Direction
-        Vector3 direction;
+        Vector3 _direction;
         //Color
-        Vector4 color;
+        Vector4 _color;
         //Intensity
-        float intensity;
+        float _intensity;
         //NearPlane
-        float nearPlane;
+        float _nearPlane;
         //FarPlane
-        float farPlane;
+        float _farPlane;
         //FOV
-        float FOV;
+        float _fov;
         //Is this Light with Shadows?
-        bool isWithShadows;
+        bool _isWithShadows;
         //Shadow Map Resoloution
-        int shadowMapResoloution;
+        int _shadowMapResoloution;
         //DepthBias for the Shadowing... (1.0f / 2000.0f)
-        float depthBias;
+        float _depthBias;
         //World(for geometry in LightMapping phase...)
-        Matrix world;
+        Matrix _world;
         //View
-        Matrix view;
+        Matrix _view;
         //Projection
-        Matrix projection;
+        Matrix _projection;
         //Shadow Map
-        RenderTarget2D shadowMap;
+        RenderTarget2D _shadowMap;
         //Attenuation Texture
-        Texture2D attenuationTexture;
+        Texture2D _attenuationTexture;
         #region Get Functions
         //Get Position
-        public Vector3 getPosition() { return position; }
+        public Vector3 GetPosition() { return _position; }
         //Get Direction
-        public Vector3 getDirection() { return direction; }
+        public Vector3 GetDirection() { return _direction; }
         //Get Color
-        public Vector4 getColor() { return color; }
+        public Vector4 GetColor() { return _color; }
         //Get Intensity
-        public float getIntensity() { return intensity; }
+        public float GetIntensity() { return _intensity; }
         //Get NearPlane
-        public float getNearPlane() { return nearPlane; }
+        public float GetNearPlane() { return _nearPlane; }
         //Get FarPlane
-        public float getFarPlane() { return farPlane; }
+        public float GetFarPlane() { return _farPlane; }
         //Get FOV
-        public float getFOV() { return FOV; }
+        public float GetFov() { return _fov; }
         //Get IsWithShadows
-        public bool getIsWithShadows() { return isWithShadows; }
+        public bool GetIsWithShadows() { return _isWithShadows; }
         //Get ShadowMapResoloution
-        public int getShadowMapResoloution()
+        public int GetShadowMapResoloution()
         {
-            if (shadowMapResoloution < 2048)
-                return shadowMapResoloution;
+            if (_shadowMapResoloution < 2048)
+                return _shadowMapResoloution;
             else
                 return 2048;
         }
         //Get DepthBias
-        public float getDepthBias() { return depthBias; }
+        public float GetDepthBias() { return _depthBias; }
         //Get World
-        public Matrix getWorld() { return world; }
+        public Matrix GetWorld() { return _world; }
         //Get View
-        public Matrix getView() { return view; }
+        public Matrix GetView() { return _view; }
         //Get Projection
-        public Matrix getProjection() { return projection; }
+        public Matrix GetProjection() { return _projection; }
         //Get ShadowMap
-        public RenderTarget2D getShadowMap() { return shadowMap; }
+        public RenderTarget2D GetShadowMap() { return _shadowMap; }
         //Get Attenuation Texture
-        public Texture2D getAttenuationTexture() { return attenuationTexture; }
+        public Texture2D GetAttenuationTexture() { return _attenuationTexture; }
         #endregion
         #region Set Functions
         //Set Position
-        public void setPosition(Vector3 position) { this.position = position; }
+        public void SetPosition(Vector3 position) { this._position = position; }
         //Set Direction
-        public void setDirection(Vector3 direction)
+        public void SetDirection(Vector3 direction)
         {
             direction.Normalize();
-            this.direction = direction;
+            this._direction = direction;
         }
         //Set Color
-        public void setColor(Vector4 color) { this.color = color; }
+        public void SetColor(Vector4 color) { this._color = color; }
         //Set Color
-        public void setColor(Color color) { this.color = color.ToVector4(); }
+        public void SetColor(Color color) { this._color = color.ToVector4(); }
         //Set Intensity
-        public void setIntensity(float intensity) { this.intensity = intensity; }
+        public void SetIntensity(float intensity) { this._intensity = intensity; }
         //Set isWithShadows
-        public void setIsWithShadows(bool iswith) { this.isWithShadows = iswith; }
+        public void SetIsWithShadows(bool iswith) { this._isWithShadows = iswith; }
         //Set DepthBias
-        public void setDepthBias(float bias) { this.depthBias = bias; }
+        public void SetDepthBias(float bias) { this._depthBias = bias; }
         //Set Attenuation Texture
-        public void setAttenuationTexture(Texture2D attenuationTexture)
+        public void SetAttenuationTexture(Texture2D attenuationTexture)
         {
-            this.attenuationTexture = attenuationTexture;
+            this._attenuationTexture = attenuationTexture;
         }
         #endregion
         //Constructor
-        public SpotLight(GraphicsDevice GraphicsDevice, Vector3 Position,
-       Vector3 Direction, Vector4 Color, float Intensity,
-       bool isWithShadows, int ShadowMapResoloution,
-       Texture2D AttenuationTexture)
+        public SpotLight(GraphicsDevice graphicsDevice, Vector3 position,
+       Vector3 direction, Vector4 color, float intensity,
+       bool isWithShadows, int shadowMapResoloution,
+       Texture2D attenuationTexture)
         {
             //Position
-            setPosition(Position);
+            SetPosition(position);
             //Direction
-            setDirection(Direction);
+            SetDirection(direction);
             //Color
-            setColor(Color);
+            SetColor(color);
             //Intensity
-            setIntensity(Intensity);
+            SetIntensity(intensity);
             //NearPlane
-            nearPlane = 1.0f;
+            _nearPlane = 1.0f;
             //FarPlane
-            farPlane = 100.0f;
+            _farPlane = 100.0f;
             //FOV
-            FOV = MathHelper.PiOver2;
+            _fov = MathHelper.PiOver2;
             //Set whether Is With Shadows
-            setIsWithShadows(isWithShadows);
+            SetIsWithShadows(isWithShadows);
             //Shadow Map Resoloution
-            shadowMapResoloution = ShadowMapResoloution;
+            _shadowMapResoloution = shadowMapResoloution;
             //Depth Bias
-            depthBias = 1.0f / 2000.0f;
+            _depthBias = 1.0f / 2000.0f;
             //Projection
-            projection = Matrix.CreatePerspectiveFieldOfView(FOV, 1.0f, nearPlane,
-            farPlane);
+            _projection = Matrix.CreatePerspectiveFieldOfView(_fov, 1.0f, _nearPlane,
+            _farPlane);
             //Shadow Map
-            shadowMap = new RenderTarget2D(GraphicsDevice, getShadowMapResoloution(),
-            getShadowMapResoloution(), false,
+            _shadowMap = new RenderTarget2D(graphicsDevice, GetShadowMapResoloution(),
+            GetShadowMapResoloution(), false,
             SurfaceFormat.Single,
             DepthFormat.Depth24Stencil8);
             //Attenuation Texture
-            attenuationTexture = AttenuationTexture;
+            _attenuationTexture = attenuationTexture;
             //Create View and World
             Update();
         }
@@ -148,38 +148,38 @@ namespace Alexander_VT19.Lights
         public float LightAngleCos()
         {
             //float ConeAngle = 2 * atanf(Radius / Height);
-            float ConeAngle = FOV;
-            return (float)Math.Cos((double)ConeAngle);
+            float coneAngle = _fov;
+            return (float)Math.Cos((double)coneAngle);
         }
         //Update
         public void Update()
         {
             //Target
-            Vector3 target = (position + direction);
+            Vector3 target = (_position + _direction);
             if (target == Vector3.Zero) target = -Vector3.Up;
             //Up
-            Vector3 up = Vector3.Cross(direction, Vector3.Up);
+            Vector3 up = Vector3.Cross(_direction, Vector3.Up);
             if (up == Vector3.Zero) up = Vector3.Right;
             else up = Vector3.Up;
             //ReMake View
-            view = Matrix.CreateLookAt(position, target, up);
+            _view = Matrix.CreateLookAt(_position, target, up);
             //Make Scaling Factor
-            float radial = (float)Math.Tan((double)FOV / 2.0) * 2 * farPlane;
+            float radial = (float)Math.Tan((double)_fov / 2.0) * 2 * _farPlane;
             //Make Scaling Matrix
-            Matrix Scaling = Matrix.CreateScale(radial, radial, farPlane);
+            Matrix scaling = Matrix.CreateScale(radial, radial, _farPlane);
             //Make Translation Matrix
-            Matrix Translation = Matrix.CreateTranslation(position.X, position.Y, position.Z);
+            Matrix translation = Matrix.CreateTranslation(_position.X, _position.Y, _position.Z);
             //Make Inverse View
-            Matrix inverseView = Matrix.Invert(view);
+            Matrix inverseView = Matrix.Invert(_view);
             //Make Semi-Product
-            Matrix semiProduct = Scaling * inverseView;
+            Matrix semiProduct = scaling * inverseView;
             //Decompose Semi-Product
-            Vector3 S; Vector3 P; Quaternion Q;
-            semiProduct.Decompose(out S, out Q, out P);
+            Vector3 s; Vector3 p; Quaternion q;
+            semiProduct.Decompose(out s, out q, out p);
             //Make Rotation
-            Matrix Rotation = Matrix.CreateFromQuaternion(Q);
+            Matrix rotation = Matrix.CreateFromQuaternion(q);
             //Make World
-            world = Scaling * Rotation * Translation;
+            _world = scaling * rotation * translation;
         }
     }
 }

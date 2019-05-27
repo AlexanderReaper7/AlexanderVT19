@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,72 +9,29 @@ namespace Alexander_VT19
 {
     public static class ColorHelper
     {
-        public struct RGB
-        {
-            private byte _r;
-            private byte _g;
-            private byte _b;
-
-            public RGB(byte r, byte g, byte b)
-            {
-                this._r = r;
-                this._g = g;
-                this._b = b;
-            }
-
-            public byte R
-            {
-                get { return this._r; }
-                set { this._r = value; }
-            }
-
-            public byte G
-            {
-                get { return this._g; }
-                set { this._g = value; }
-            }
-
-            public byte B
-            {
-                get { return this._b; }
-                set { this._b = value; }
-            }
-
-            public bool Equals(RGB rgb)
-            {
-                return (this.R == rgb.R) && (this.G == rgb.G) && (this.B == rgb.B);
-            }
-        }
-
         public struct HSV
         {
-            private double _h;
-            private double _s;
-            private double _v;
+            public double H { get; set; }
+
+            public double S { get; set; }
+
+            public double V { get; set; }
 
             public HSV(double h, double s, double v)
             {
-                this._h = h;
-                this._s = s;
-                this._v = v;
+                this.H = h;
+                this.S = s;
+                this.V = v;
             }
 
-            public double H
+            public static bool operator ==(HSV a, HSV b)
             {
-                get { return this._h; }
-                set { this._h = value; }
+                return a.Equals(b);
             }
 
-            public double S
+            public static bool operator !=(HSV a, HSV b)
             {
-                get { return this._s; }
-                set { this._s = value; }
-            }
-
-            public double V
-            {
-                get { return this._v; }
-                set { this._v = value; }
+                return !a.Equals(b);
             }
 
             public bool Equals(HSV hsv)
@@ -82,17 +40,7 @@ namespace Alexander_VT19
             }
         }
 
-        public static RGB ToRGB(this Color color)
-        {
-            return new RGB(color.R, color.G, color.B);
-        }
-
-        public static Color ToColor(this RGB rgb)
-        {
-            return new Color(rgb.R, rgb.G, rgb.B);
-        }
-
-        public static HSV RGBToHSV(RGB rgb)
+        public static HSV RGBToHSV(Color rgb)
         {
             double delta, min;
             double h = 0, s, v;
@@ -124,10 +72,10 @@ namespace Alexander_VT19
                     h = h + 360;
             }
 
-            return new HSV(h, s, (v / 255));
+            return new HSV(h, s, v / 255);
         }
 
-        public static RGB HSVToRGB(HSV hsv)
+        public static Color HSVToRGB(HSV hsv)
         {
             double r = 0, g = 0, b = 0;
 
@@ -145,7 +93,7 @@ namespace Alexander_VT19
                 if (hsv.H == 360)
                     hsv.H = 0;
                 else
-                    hsv.H = hsv.H / 60;
+                    hsv.H /= 60;
 
                 i = (int)Math.Truncate(hsv.H);
                 f = hsv.H - i;
@@ -195,7 +143,23 @@ namespace Alexander_VT19
 
             }
 
-            return new RGB((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
+            return new Color((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
+        }
+
+        public static Color CalculateColorFromRotation(Vector3 rotation)
+        {
+            // Change Color from rotation
+            // X Y Z becomes H S V
+            float H = Math.Abs(MathHelper.ToDegrees(rotation.X));
+            float S = LinearCosine(rotation.Y);
+            float V = LinearCosine(rotation.Z);
+
+            return HSVToRGB(new HSV(H, S, V));
+        }
+
+        private static float LinearCosine(float value)
+        {
+            return Math.Abs((float)(1 - Math.Abs(value % MathHelper.TwoPi) / Math.PI));
         }
     }
 }

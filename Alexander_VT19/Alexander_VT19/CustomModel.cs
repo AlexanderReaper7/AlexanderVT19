@@ -12,8 +12,8 @@ namespace Alexander_VT19
         public Model Model { get; set; }
         public Material Material { get; set; }
 
-        private Matrix[] modelTransforms;
-        private GraphicsDevice graphicsDevice;
+        private Matrix[] _modelTransforms;
+        private GraphicsDevice _graphicsDevice;
 
 
         public CustomModel(Model model, Vector3 position, Vector3 rotation, Vector3 scale,
@@ -21,18 +21,20 @@ namespace Alexander_VT19
         {
             Model = model;
             // Create a new array of matrices with capacity of total bones in the model
-            modelTransforms = new Matrix[Model.Bones.Count];
+            _modelTransforms = new Matrix[Model.Bones.Count];
             // Copy the models bone matrices to the modelTransforms matrix array
-            Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
+            Model.CopyAbsoluteBoneTransformsTo(_modelTransforms);
 
             Position = position;
             Rotation = rotation;
             Scale = scale;
 
-            this.graphicsDevice = graphicsDevice;
+            this._graphicsDevice = graphicsDevice;
             Material = new Material();
             GenerateTags();
         }
+
+
 
         public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
         {
@@ -45,7 +47,7 @@ namespace Alexander_VT19
             foreach (ModelMesh mesh in Model.Meshes)
             {
                 // Create a local matrix by combining the parent bone´s matrix and baseworld matrix
-                Matrix localWorldMatrix = modelTransforms[mesh.ParentBone.Index] * baseWorld;
+                Matrix localWorldMatrix = _modelTransforms[mesh.ParentBone.Index] * baseWorld;
 
                 // For every mesh part in mesh
                 foreach (ModelMeshPart part in mesh.MeshParts)
@@ -77,6 +79,8 @@ namespace Alexander_VT19
             }
         }
 
+
+
         public static void SetEffectParameter(Effect effect, string param, object val)
         {
             if(effect.Parameters[param] == null) return;
@@ -86,6 +90,8 @@ namespace Alexander_VT19
             else if (val is Matrix) effect.Parameters[param].SetValue((Matrix)val);
             else if (val is Texture2D) effect.Parameters[param].SetValue((Texture2D)val);
         }
+
+
 
         public void SetModelEffect(Effect effect, bool copyEffect)
         {
@@ -119,6 +125,10 @@ namespace Alexander_VT19
                 }
             }
         }
+
+
+
+        #region MeshTag
 
         private void GenerateTags()
         {
@@ -164,4 +174,8 @@ namespace Alexander_VT19
             SpecularPower = specularPower;
         }
     }
+        
+
+        #endregion
+
 }

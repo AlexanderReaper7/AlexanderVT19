@@ -47,13 +47,13 @@ namespace Alexander_VT19
                     output[1] = new Rectangle(_screenWidth / 2,0, _screenWidth / 2, _screenHeight);
                     return output;
 
-                case 3: // two top one bottom, all the same sizes TODO
-                    output[0] = new Rectangle();
-                    output[1] = new Rectangle();
-                    output[2] = new Rectangle();
+                case 3: // two top one bottom, all the same sizes
+                    output[0] = new Rectangle(0, 0, _screenWidth / 2, _screenHeight / 2);
+                    output[1] = new Rectangle(_screenWidth / 2, 0,_screenWidth / 2, _screenHeight / 2);
+                    output[2] = new Rectangle(_screenWidth / 4, _screenHeight / 2, _screenWidth / 2, _screenHeight / 2);
                     return output;
 
-                case 4: // quarters in each corner of window TODO
+                case 4: // quarters in each corner of window
                     output[0] = new Rectangle(0, 0, _screenWidth / 2, _screenHeight / 2);
                     output[1] = new Rectangle(_screenWidth / 2, 0, _screenWidth / 2, _screenHeight / 2);
                     output[2] = new Rectangle(0, _screenHeight / 2, _screenWidth / 2, _screenHeight / 2);

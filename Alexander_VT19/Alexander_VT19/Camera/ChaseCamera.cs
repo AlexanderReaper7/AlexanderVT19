@@ -14,12 +14,12 @@ namespace Alexander_VT19
         public Vector3 RelativeCameraRotation { get; set; }
 
 
-        private float springiness = .15f;
+        private float _springiness = .15f;
 
         public float Springiness
         {
-            get { return springiness; }
-            set { springiness = MathHelper.Clamp(value, 0, 1); }
+            get { return _springiness; }
+            set { _springiness = MathHelper.Clamp(value, 0, 1); }
         }
 
         public ChaseCamera(Vector3 positionOffset, Vector3 targetOffset, Vector3 relativeCameraRotation, GraphicsDevice graphicsDevice) 

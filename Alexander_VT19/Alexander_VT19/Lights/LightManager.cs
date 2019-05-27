@@ -14,199 +14,199 @@ namespace Alexander_VT19.Lights
     class LightManager
     {
         //Depth Writing Shader
-        Effect depthWriter;
+        Effect _depthWriter;
         //Directional Lights
-        List<DirectionalLight> directionalLights;
+        List<DirectionalLight> _directionalLights;
         //Spot Lights
-        List<SpotLight> spotLights;
+        List<SpotLight> _spotLights;
         //Point Lights
-        List<PointLight> pointLights;
+        List<PointLight> _pointLights;
         #region Get Functions
         //Get Directional Lights
-        public List<DirectionalLight> getDirectionalLights() { return directionalLights; }
+        public List<DirectionalLight> GetDirectionalLights() { return _directionalLights; }
         //Get Spot Lights
-        public List<SpotLight> getSpotLights() { return spotLights; }
+        public List<SpotLight> GetSpotLights() { return _spotLights; }
         //Get Point Lights
-        public List<PointLight> getPointLights() { return pointLights; }
+        public List<PointLight> GetPointLights() { return _pointLights; }
         #endregion
         //Constructor
-        public LightManager(ContentManager Content)
+        public LightManager(ContentManager content)
         {
             //Initialize Directional Lights
-            directionalLights = new List<DirectionalLight>();
+            _directionalLights = new List<DirectionalLight>();
 
             //Initialize Spot Lights
-            spotLights = new List<SpotLight>();
+            _spotLights = new List<SpotLight>();
 
             //Initialize Point Lights
-            pointLights = new List<PointLight>();
+            _pointLights = new List<PointLight>();
 
             //Load the Depth Writing Shader
-            depthWriter = Content.Load<Effect>("Effects/DepthWriter");
-            depthWriter.CurrentTechnique = depthWriter.Techniques[0];
+            _depthWriter = content.Load<Effect>("Effects/DepthWriter");
+            _depthWriter.CurrentTechnique = _depthWriter.Techniques[0];
         }
         //Add a Point Light
-        public void AddLight(PointLight Light)
+        public void AddLight(PointLight light)
         {
-            pointLights.Add(Light);
+            _pointLights.Add(light);
         }
         //Add a Directional Light
-        public void AddLight(DirectionalLight Light)
+        public void AddLight(DirectionalLight light)
         {
-            directionalLights.Add(Light);
+            _directionalLights.Add(light);
         }
         //Add a Spot Light
-        public void AddLight(SpotLight Light)
+        public void AddLight(SpotLight light)
         {
-            spotLights.Add(Light);
+            _spotLights.Add(light);
         }
         //Remove a Point Light
-        public void RemoveLight(PointLight Light)
+        public void RemoveLight(PointLight light)
         {
-            pointLights.Remove(Light);
+            _pointLights.Remove(light);
         }
         //Remove a Directional Light
-        public void RemoveLight(DirectionalLight Light)
+        public void RemoveLight(DirectionalLight light)
         {
-            directionalLights.Remove(Light);
+            _directionalLights.Remove(light);
         }
         //Remove a Spot Light
-        public void RemoveLight(SpotLight Light)
+        public void RemoveLight(SpotLight light)
         {
-            spotLights.Remove(Light);
+            _spotLights.Remove(light);
         }
 
         //Draw Shadow Maps
-        public void DrawShadowMaps(GraphicsDevice GraphicsDevice, List<Model> Models)
+        public void DrawShadowMaps(GraphicsDevice graphicsDevice, List<Model> models)
         {
             //Set States
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             //Foreach SpotLight with Shadows
-            foreach (SpotLight Light in spotLights)
+            foreach (SpotLight light in _spotLights)
             {
                 //Update it
-                Light.Update();
+                light.Update();
                 //Draw it's Shadow Map
-                if (Light.getIsWithShadows()) DrawShadowMap(GraphicsDevice, Light, Models);
+                if (light.GetIsWithShadows()) DrawShadowMap(graphicsDevice, light, models);
             }
             //Foreach PointLight with Shadows
-            foreach (PointLight Light in pointLights)
+            foreach (PointLight light in _pointLights)
             {
                 //Draw it's Shadow Map
-                if (Light.getIsWithShadows()) DrawShadowMap(GraphicsDevice, Light, Models);
+                if (light.GetIsWithShadows()) DrawShadowMap(graphicsDevice, light, models);
             }
         }
 
         //Draw a Shadow Map for a Spot Light
-        void DrawShadowMap(GraphicsDevice GraphicsDevice, SpotLight Light, List<Model> Models)
+        void DrawShadowMap(GraphicsDevice graphicsDevice, SpotLight light, List<Model> models)
         {
             //Set Light's Target onto the Graphics Device
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap());
+            graphicsDevice.SetRenderTarget(light.GetShadowMap());
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(Light.getView());
-            depthWriter.Parameters["Projection"].SetValue(Light.getProjection());
-            depthWriter.Parameters["LightPosition"].SetValue(Light.getPosition());
-            depthWriter.Parameters["DepthPrecision"].SetValue(Light.getFarPlane());
+            _depthWriter.Parameters["View"].SetValue(light.GetView());
+            _depthWriter.Parameters["Projection"].SetValue(light.GetProjection());
+            _depthWriter.Parameters["LightPosition"].SetValue(light.GetPosition());
+            _depthWriter.Parameters["DepthPrecision"].SetValue(light.GetFarPlane());
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
         }
 
         //Draw a Shadow Map for a Point Light
-        void DrawShadowMap(GraphicsDevice GraphicsDevice, PointLight Light, List<Model>
-        Models)
+        void DrawShadowMap(GraphicsDevice graphicsDevice, PointLight light, List<Model>
+        models)
         {
             //Initialize View Matrices Array
             Matrix[] views = new Matrix[6];
             //Create View Matrices
-            views[0] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[0] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
             Vector3.Forward, Vector3.Up);
 
-            views[1] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[1] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
            Vector3.Backward, Vector3.Up);
 
-            views[2] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[2] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
            Vector3.Left, Vector3.Up);
 
-            views[3] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[3] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
            Vector3.Right, Vector3.Up);
 
-            views[4] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[4] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
            Vector3.Down, Vector3.Forward);
 
-            views[5] = Matrix.CreateLookAt(Light.getPosition(), Light.getPosition() +
+            views[5] = Matrix.CreateLookAt(light.GetPosition(), light.GetPosition() +
            Vector3.Up, Vector3.Backward);
             //Create Projection Matrix
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(90.0f),
-            1.0f, 1.0f, Light.getRadius());
+            1.0f, 1.0f, light.GetRadius());
             //Set Global Effect Values
-            depthWriter.Parameters["Projection"].SetValue(projection);
-            depthWriter.Parameters["LightPosition"].SetValue(Light.getPosition());
-            depthWriter.Parameters["DepthPrecision"].SetValue(Light.getRadius());
+            _depthWriter.Parameters["Projection"].SetValue(projection);
+            _depthWriter.Parameters["LightPosition"].SetValue(light.GetPosition());
+            _depthWriter.Parameters["DepthPrecision"].SetValue(light.GetRadius());
             #region Forward
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.PositiveZ);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.PositiveZ);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[0]);
+            _depthWriter.Parameters["View"].SetValue(views[0]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
             #region Backward
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.NegativeZ);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.NegativeZ);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[1]);
+            _depthWriter.Parameters["View"].SetValue(views[1]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
             #region Left
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.NegativeX);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.NegativeX);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[2]);
+            _depthWriter.Parameters["View"].SetValue(views[2]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
             #region Right
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.PositiveX);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.PositiveX);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[3]);
+            _depthWriter.Parameters["View"].SetValue(views[3]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
             #region Down
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.NegativeY);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.NegativeY);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[4]);
+            _depthWriter.Parameters["View"].SetValue(views[4]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
             #region Up
-            GraphicsDevice.SetRenderTarget(Light.getShadowMap(), CubeMapFace.PositiveY);
+            graphicsDevice.SetRenderTarget(light.GetShadowMap(), CubeMapFace.PositiveY);
             //Clear Target
-            GraphicsDevice.Clear(Color.Transparent);
+            graphicsDevice.Clear(Color.Transparent);
             //Set global Effect parameters
-            depthWriter.Parameters["View"].SetValue(views[5]);
+            _depthWriter.Parameters["View"].SetValue(views[5]);
             //Draw Models
-            DrawModels(GraphicsDevice, Models);
+            DrawModels(graphicsDevice, models);
             #endregion
         }
 
         //Draw Models
-        void DrawModels(GraphicsDevice GraphicsDevice, List<Model> Models)
+        void DrawModels(GraphicsDevice graphicsDevice, List<Model> models)
         {
             //Draw Each Model
-            foreach (Model model in Models)
+            foreach (Model model in models)
             {
                 //Get Transforms
                 Matrix[] transforms = new Matrix[model.Bones.Count];
@@ -218,15 +218,15 @@ namespace Alexander_VT19.Lights
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
                         //Set Vertex Buffer
-                        GraphicsDevice.SetVertexBuffer(part.VertexBuffer, part.VertexOffset);
+                        graphicsDevice.SetVertexBuffer(part.VertexBuffer, part.VertexOffset);
                         //Set Index Buffer
-                        GraphicsDevice.Indices = part.IndexBuffer;
+                        graphicsDevice.Indices = part.IndexBuffer;
                         //Set World
-                        depthWriter.Parameters["World"].SetValue(transforms[mesh.ParentBone.Index]);
+                        _depthWriter.Parameters["World"].SetValue(transforms[mesh.ParentBone.Index]);
                         //Apply Effect
-                        depthWriter.CurrentTechnique.Passes[0].Apply();
+                        _depthWriter.CurrentTechnique.Passes[0].Apply();
                         //Draw
-                        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                        graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
                             part.NumVertices, part.StartIndex,
                             part.PrimitiveCount);
                     }
