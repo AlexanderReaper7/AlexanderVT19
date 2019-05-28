@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Alexander_VT19.Materials;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -10,36 +11,54 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Alexander_VT19
 {
+
+    public struct GameData
+    {
+        public PlayerData[] PlayerDatas;
+        public double GameDuration;
+    }
+
+    public struct PlayerData
+    {
+        public InputMethod PreferredInputMethod;
+        public PlayerIndex PlayerIndex;
+        public bool IsActive;
+        public Color Color;
+        public Difficulty Difficulty;
+    }
+
+    public struct Difficulty
+    {
+        public float Margin;
+        public float TimeLimit;
+
+        public static Difficulty Easy => new Difficulty() { Margin = 0.25f, TimeLimit = 60 };
+        public static Difficulty Medium => new Difficulty() { Margin = 0.2f, TimeLimit = 60 };
+        public static Difficulty Hard => new Difficulty() { Margin = 0.15f, TimeLimit = 90 };
+        public static Difficulty Ultra => new Difficulty() { Margin = 0.1f, TimeLimit = 120 };
+    }
+
     public static class PlayerSelectMenu
     {
-        public struct PlayerData
-        {
-            public InputMethod PreferredInputMethod;
-            public PlayerIndex PlayerIndex;
-            public bool IsActive;
-            public Color Color;
-        }
-
-
         private static GraphicsDevice _graphicsDevice;
         private static ExtendedSpriteBatch _spriteBatch;
         private static QuadRenderer _quadRenderer;
-
-        private static PlayerData[] _players;
-
         private static SpriteFont _defaultFont;
-
         private static NeonBackground _neonBackground;
 
-        private static Texture2D _pixel;
+        private static GameData _gameData;
+        private static Player[] _players;
+        private static StaticCamera _camera;
 
         private static Texture2D[] _keyboardOverlayTextures;
-        private static Texture2D _keyboardTexture; // TODO:
+        private static Texture2D _keyboardTexture;
         private static Texture2D _gamePadTexture;
         private static Texture2D _gamePadOverlayTexture;
-
         private static Texture2D _gamePadIcon;
         private static Texture2D _keyboardIcon;
+        private static Texture2D _aButton;
+        private static Texture2D _instructionsTexture;
+        private static bool _enableInstructionsOverlay;
 
         public static void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
         {
@@ -47,15 +66,40 @@ namespace Alexander_VT19
             _spriteBatch = new ExtendedSpriteBatch(graphicsDevice);
             _quadRenderer = new QuadRenderer(graphicsDevice);
 
+            // Load font
             _defaultFont = content.Load<SpriteFont>(@"DefaultFont");
 
+            // Load neon background
             _neonBackground = NeonBackground.CreateNew(content);
             _neonBackground.Resolution = new Vector2(3840, 2160);
 
-            _pixel = new Texture2D(_graphicsDevice, 1, 1);
-            _pixel.SetData(new Color[] { Color.White });
+            // Load simple Effect
+            Effect effect = content.Load<Effect>(@"Effects/LightingEffect");
 
+            Vector3[] playerPositions = new Vector3[]
+            {
+                new Vector3(55,-20,0),
+                new Vector3(20,-20,0),
+                new Vector3(-20,-20,0), 
+                new Vector3(-55,-20,0), 
+            };
 
+            // Create players
+            if (GameInstance.PlayerModels == null) GameInstance.LoadContent(content);
+            _players = new Player[4];
+            for (int i = 0; i < 4; i++)
+            {
+                _players[i] = new Player((PlayerIndex)i,
+                    InputMethod.Keyboard,
+                    new CustomModel(GameInstance.PlayerModels[0], playerPositions[i], Vector3.Zero, Vector3.One * 4, graphicsDevice));
+                _players[i].CustomModel.SetModelEffect(effect, false);
+                _players[i].CustomModel.Material = new LightingMaterial();
+            }
+
+            // Create camera
+            _camera = new StaticCamera(Vector3.Forward * 15, Vector3.Zero, graphicsDevice, ProjectionMatrixType.Orthographic);
+
+            // Load Textures
             _keyboardTexture = content.Load<Texture2D>(@"Images/keyboard");
             _keyboardOverlayTextures = new Texture2D[4];
             _keyboardOverlayTextures[0] = content.Load<Texture2D>(@"Images/KeyboardOverlayPlayer1");
@@ -68,15 +112,14 @@ namespace Alexander_VT19
 
             _keyboardIcon = content.Load<Texture2D>(@"Images/keyboard_icon");
             _gamePadIcon = content.Load<Texture2D>(@"Images/gamepad_icon");
+            _aButton = content.Load<Texture2D>(@"Images/AButton");
+            _instructionsTexture = content.Load<Texture2D>(@"Images/Instructions");
         }
 
 
 
-        public static void Update()
+        public static void Update(GameTime gameTime)
         {
-            // TODO: this is temp
-            if (_players == null) { StartNewSelection();}
-
             #region Keyboard
 
             // Get keyboard Input
@@ -95,14 +138,17 @@ namespace Alexander_VT19
                     if (keyboardState.IsKeyDown(key))
                     {
                         // then set that players input method to keyboard
-                        _players[playerIndex].PreferredInputMethod = InputMethod.Keyboard;
-                        _players[playerIndex].IsActive = true;
+                        _gameData.PlayerDatas[playerIndex].PreferredInputMethod = InputMethod.Keyboard;
+                        _gameData.PlayerDatas[playerIndex].IsActive = true;
                     }
                 }
             }
 
+            if (keyboardState.IsKeyDown(Keys.Back)) StartNewSelection(); // Backspace to reset selection
             if (keyboardState.IsKeyDown(Keys.Escape)) Game1.GameState = GameStates.Exit; // Press escape to exit
             if (keyboardState.IsKeyDown(Keys.Enter)) StartGame(); // Press enter to start game with current settings
+            _enableInstructionsOverlay = keyboardState.IsKeyDown(Keys.Space); // Hold Enter to view Instructions
+
             #endregion
 
             #region Gamepad
@@ -115,14 +161,14 @@ namespace Alexander_VT19
                 // Activate player on A button down
                 if (gamePadState.IsButtonDown(Buttons.A))
                 {
-                    _players[playerIndex].PreferredInputMethod = InputMethod.GamePad;
-                    _players[playerIndex].IsActive = true;
+                    _gameData.PlayerDatas[playerIndex].PreferredInputMethod = InputMethod.GamePad;
+                    _gameData.PlayerDatas[playerIndex].IsActive = true;
                 }
                 // Disable player on B button down
                 else if (gamePadState.IsButtonDown(Buttons.B))
                 {
-                    _players[playerIndex].PreferredInputMethod = InputMethod.GamePad;
-                    _players[playerIndex].IsActive = false;
+                    _gameData.PlayerDatas[playerIndex].PreferredInputMethod = InputMethod.GamePad;
+                    _gameData.PlayerDatas[playerIndex].IsActive = false;
                 }
 
                 // Start game on Start button down
@@ -130,10 +176,30 @@ namespace Alexander_VT19
                 {
                     StartGame();
                 }
+
+                // Dpad up to show insrtuctions
+                if (gamePadState.IsButtonDown(Buttons.DPadUp))
+                {
+                    _enableInstructionsOverlay = true;
+                }
             }
-            
+
             #endregion
 
+            #region Players
+
+            for (int i = 0; i < _players.Length; i++)
+            {
+                // If the player is active
+                if (_gameData.PlayerDatas[i].IsActive)
+                {
+                    // Update player
+                    _players[i].PreferredInputMethod = _gameData.PlayerDatas[i].PreferredInputMethod;
+                    _players[i].Update(gameTime);
+                }
+            }
+
+            #endregion
 
         }
 
@@ -141,18 +207,26 @@ namespace Alexander_VT19
 
         public static void StartNewSelection()
         {
-            const int capacity = 4; // Capacity should not exceed 4
-            // Create new array of player data
-            _players = new PlayerData[capacity];
-            for (int i = 0; i < capacity; i++)
+            // Create new GameData
+            _gameData = new GameData()
             {
-                _players[i] = new PlayerData
+                GameDuration = 120,
+                PlayerDatas = new PlayerData[4],
+
+            };
+
+            // Create new array of player data
+            for (int i = 0; i < 4; i++)
+            {
+                _gameData.PlayerDatas[i] = new PlayerData
                 {
                         PlayerIndex = (PlayerIndex)i,
                         IsActive = false,
-                        Color = ColorHelper.HSVToRGB(new ColorHelper.HSV(360 / capacity * i, 1f, 0.5))
+                        Color = ColorHelper.HSVToRGB(new ColorHelper.HSV(360 / 4 * i, 1, 0.5)),
+                        Difficulty = Difficulty.Easy
                 };
             }
+
         }
 
 
@@ -160,12 +234,12 @@ namespace Alexander_VT19
 
         private static void StartGame()
         {
-            foreach (PlayerData data in _players)
+            foreach (PlayerData data in _gameData.PlayerDatas)
             {
                 if (data.IsActive)
                 {
                     Game1.GameState = GameStates.InGame;
-                    InGame.StartNewGame(_players);
+                    InGame.StartNewGame(_gameData);
                 }
             }
         }
@@ -201,18 +275,10 @@ namespace Alexander_VT19
 
             #endregion
 
+            // Credits
+            _spriteBatch.DrawString(_defaultFont,"  Made By: Alexander Oberg ", Vector2.Zero, Color.White);
+
             #region Instructions
-
-            Rectangle instructionsRectangle = new Rectangle(LeftMargin, 20, ScreenWidth - 2* LeftMargin, ScreenHeight / 2);
-            _spriteBatch.DrawFilledRectangle(instructionsRectangle, BackDropColor);
-
-            // Draw "press ESc to return to main menu"
-            string backString = "Press 'ESC' to return to main menu";
-            _spriteBatch.DrawString(_defaultFont, backString, new Vector2(0, ScreenHeight - _defaultFont.MeasureString(backString).Y), Color.White);
-
-            // Draw "press ENTER or START to start game"
-            string playString = "Press 'ENTER' or 'Start' to start the game";
-            _spriteBatch.DrawString(_defaultFont, playString, new Vector2(ScreenWidth, ScreenHeight) - _defaultFont.MeasureString(playString), Color.White);
 
             #region keyboard controlls
 
@@ -220,26 +286,59 @@ namespace Alexander_VT19
             Rectangle keyboardRectangle = new Rectangle(20, 20, 850, 300);
             _spriteBatch.Draw(_keyboardTexture, keyboardRectangle, Color.White);
 
+            // draw keyboard overlays
+            for (int i = 0; i < 4; i++)
+            {
+                _spriteBatch.Draw(_keyboardOverlayTextures[i],
+                    keyboardRectangle,
+                    _gameData.PlayerDatas[i].Color);
+            }
+
             #endregion
 
             #region Gamepad controlls
 
+            // Draw gamepad
             Rectangle gamePadRectangle = new Rectangle(keyboardRectangle.Right + 20, 20 ,800, 400);
-
             _spriteBatch.Draw(_gamePadTexture, gamePadRectangle, Color.White);
+            // Draw gamepad overlay
             _spriteBatch.Draw(_gamePadOverlayTexture, gamePadRectangle, ColorHelper.HSVToRGB(new ColorHelper.HSV(gameTime.TotalGameTime.TotalSeconds * 40 % 360 , 1, 0.8)));
             
             #endregion
+
+            Rectangle instructionsRectangle = new Rectangle(LeftMargin, 20, ScreenWidth - 2* LeftMargin, ScreenHeight / 2);
+            _spriteBatch.DrawFilledRectangle(instructionsRectangle, BackDropColor);
+
+
+            string activateKey =
+                "Press A on the gamepad or\nany active key on the keyboard to activate player";
+            _spriteBatch.DrawString(_defaultFont, activateKey, new Vector2(instructionsRectangle.X, instructionsRectangle.Y) + new Vector2(600, 350), Color.White);
+
+            string deactivateKey = "Press B on the gamepad or\nbackspace key on the keyboard to deactivate player";
+            _spriteBatch.DrawString(_defaultFont, deactivateKey, new Vector2(instructionsRectangle.X, instructionsRectangle.Y) + new Vector2(600, 450), Color.White);
+            // Draw "press ESC or back to exit"
+            string backString = " Press 'ESC' or 'Back' to exit ";
+            _spriteBatch.DrawString(_defaultFont, backString, new Vector2(0, ScreenHeight - _defaultFont.MeasureString(backString).Y), Color.White);
+
+            // Draw "press ENTER or START to start game"
+            string playString = " Press 'ENTER' or 'Start' to start the game ";
+            _spriteBatch.DrawString(_defaultFont, playString, new Vector2(ScreenWidth, ScreenHeight) - _defaultFont.MeasureString(playString), Color.White);
+
+            // Draw instructions tooltip
+            string instructionsString = "Hold 'SpaceBar' or 'D-Pad Up' to view instructions";
+            _spriteBatch.DrawString(_defaultFont, instructionsString,new Vector2((ScreenWidth - 275 - _defaultFont.MeasureString(playString).X) /2,ScreenHeight - _defaultFont.MeasureString(playString).Y - 20), Color.White, 0, Vector2.Zero, Vector2.One * 1.3f, SpriteEffects.None,0);
+
+
+
+
+            if (_enableInstructionsOverlay) _spriteBatch.Draw(_instructionsTexture, new Rectangle(0,0,ScreenWidth,ScreenHeight), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1);
+            
             #endregion
 
             #region For every player
             // Draw Players status
             for (int playerIndex = 0; playerIndex < 4; playerIndex++)
             {
-                // draw keyboard overlays
-                    _spriteBatch.Draw(_keyboardOverlayTextures[playerIndex],
-                        keyboardRectangle,
-                        _players[playerIndex].Color);
 
 
 
@@ -258,17 +357,17 @@ namespace Alexander_VT19
 
                 #region status
 
-                if (_players[playerIndex].IsActive)
+                if (_gameData.PlayerDatas[playerIndex].IsActive)
                 {
                     // draw game pad icon
                     _spriteBatch.Draw(_gamePadIcon,
                         new Rectangle(backdropRectangle.X + 20, backdropRectangle.Y + 20, 100, 100),
-                        _players[playerIndex].PreferredInputMethod == InputMethod.GamePad ? _players[playerIndex].Color : BackDropColor); 
+                        _gameData.PlayerDatas[playerIndex].PreferredInputMethod == InputMethod.GamePad ? _gameData.PlayerDatas[playerIndex].Color : BackDropColor); 
 
                     // draw keyboard icon
                     _spriteBatch.Draw(_keyboardIcon,
                         new Rectangle(backdropRectangle.X + backdropRectangle.Width - 120, backdropRectangle.Y + 20, 100, 100),
-                        _players[playerIndex].PreferredInputMethod == InputMethod.Keyboard ? _players[playerIndex].Color : BackDropColor);
+                        _gameData.PlayerDatas[playerIndex].PreferredInputMethod == InputMethod.Keyboard ? _gameData.PlayerDatas[playerIndex].Color : BackDropColor);
                 }
                 else
                 { 
@@ -282,6 +381,14 @@ namespace Alexander_VT19
                 _spriteBatch.DrawString(_defaultFont, playerNumString, new Vector2(backdropRectangle.X + (backdropRectangle.Width - playerNumSize.X) / 2, backdropRectangle.Y + playerNumSize.Y + 4), Color.White);
                 #endregion
 
+                #region Model
+
+                if (_gameData.PlayerDatas[playerIndex].IsActive)
+                {
+                    _players[playerIndex].Draw(_camera);
+                }
+
+                #endregion
             }
             #endregion
 

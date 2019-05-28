@@ -161,5 +161,7 @@ namespace Alexander_VT19
         {
             return Math.Abs((float)(1 - Math.Abs(value % MathHelper.TwoPi) / Math.PI));
         }
+
+        // TODO: Implement DeltaE color calculation methods, https://en.wikipedia.org/wiki/Color_difference#CIE76
     }
 }

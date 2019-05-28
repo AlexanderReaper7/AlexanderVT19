@@ -76,7 +76,6 @@
     <Compile Include="Camera\CameraManager.cs" />
     <Compile Include="Camera\ChaseCamera.cs" />
     <Compile Include="ExtendedSpriteBatch.cs" />
-    <Compile Include="InGame\ChallengeManager.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="CustomModel.cs" />
     <Compile Include="DeferredRenderer\DeferredRenderer.cs" />

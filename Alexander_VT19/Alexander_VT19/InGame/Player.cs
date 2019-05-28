@@ -15,21 +15,21 @@ namespace Alexander_VT19
     public enum InputMethod
     {
         Keyboard,
-        GamePad
+        GamePad,
     }
 
     public class Player
     {
         public CustomModel CustomModel;
+        public InputMethod PreferredInputMethod;
         private PlayerIndex _playerIndex;
-        private InputMethod _preferredInputMethod;
         private KeyBinds _keyBinds;
 
         private Vector3 RotationInput
         {
             get
             {
-                switch (_preferredInputMethod)
+                switch (PreferredInputMethod)
                 {
                     case InputMethod.Keyboard:
                         return GetRotationFromKeyboard();
@@ -42,15 +42,13 @@ namespace Alexander_VT19
         }
 
 
-        public Player(PlayerIndex playerIndex, InputMethod preferredInputMethod, CustomModel model, GraphicsDevice graphicsDevice)
+        public Player(PlayerIndex playerIndex, InputMethod preferredInputMethod, CustomModel model)
         {
             _playerIndex = playerIndex;
-            _preferredInputMethod = preferredInputMethod;
+            PreferredInputMethod = preferredInputMethod;
             _keyBinds = GetKeyBinds(_playerIndex);
             CustomModel = model;
-            CustomModel.Material = new SimpleMaterial();
-
-            
+            CustomModel.Material = new LightingMaterial();
         }
 
 
@@ -87,7 +85,7 @@ namespace Alexander_VT19
         /// </summary>
         private void UpdateColor()
         {
-            ((SimpleMaterial)CustomModel.Material).DiffuseColor = ColorHelper.CalculateColorFromRotation(CustomModel.Rotation).ToVector3();
+            ((LightingMaterial)CustomModel.Material).DiffuseColor = ColorHelper.CalculateColorFromRotation(CustomModel.Rotation).ToVector3();
         }
 
 

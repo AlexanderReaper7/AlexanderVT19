@@ -104,22 +104,22 @@ namespace Alexander_VT19
                     // Copy the effect if necessary
                     if (copyEffect) toSet = effect.Clone();
 
-                    MeshTag tag = (MeshTag)part.Tag;
+                    //MeshTag tag = (MeshTag)part.Tag;
 
-                    // if this ModelMeshPart has a texture, set it to the effect
-                    if (tag.Texture != null)
-                    {
-                        SetEffectParameter(toSet, "BasicTexture", tag.Texture);
-                        SetEffectParameter(toSet, "TextureEnabled", true);
-                    }
-                    else
-                    {
-                        SetEffectParameter(toSet, "TextureEnabled", false);
-                    }
+                    //// if this ModelMeshPart has a texture, set it to the effect
+                    //if (tag.Texture != null)
+                    //{
+                    //    SetEffectParameter(toSet, "BasicTexture", tag.Texture);
+                    //    SetEffectParameter(toSet, "TextureEnabled", true);
+                    //}
+                    //else
+                    //{
+                    //    SetEffectParameter(toSet, "TextureEnabled", false);
+                    //}
 
-                    // Set our remaining parameters to the effect
-                    SetEffectParameter(toSet, "diffuseColor", tag.Color);
-                    SetEffectParameter(toSet, "SpecularPower", tag.SpecularPower);
+                    //// Set our remaining parameters to the effect
+                    //SetEffectParameter(toSet, "diffuseColor", tag.Color);
+                    //SetEffectParameter(toSet, "SpecularPower", tag.SpecularPower);
 
                     part.Effect = toSet;
                 }

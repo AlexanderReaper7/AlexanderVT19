@@ -43,8 +43,8 @@ namespace Alexander_VT19
                     return output;
 
                 case 2: // side by side split screen
-                    output[0] = new Rectangle(0,0, _screenWidth / 2, _screenHeight);
-                    output[1] = new Rectangle(_screenWidth / 2,0, _screenWidth / 2, _screenHeight);
+                    output[0] = new Rectangle(0,_screenHeight /4, _screenWidth / 2, _screenHeight /2);
+                    output[1] = new Rectangle(_screenWidth / 2, _screenHeight / 4, _screenWidth / 2, _screenHeight/2);
                     return output;
 
                 case 3: // two top one bottom, all the same sizes

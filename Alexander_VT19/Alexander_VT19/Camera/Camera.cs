@@ -5,6 +5,7 @@ namespace Alexander_VT19
 {
     public abstract class Camera
     {
+
         private Matrix _view;
         private Matrix _projection;
 

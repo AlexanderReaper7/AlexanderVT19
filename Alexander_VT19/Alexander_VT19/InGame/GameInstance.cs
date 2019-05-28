@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Alexander_VT19.Lights;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -22,21 +23,9 @@ namespace Alexander_VT19
         private static SpriteFont _timeFont;
 
         // Content
-        private static List<Model> _playerModels;
-        private static Effect _simpleEffect;
-
-        private const float EasyMargin = 0.25f;
-        private const float MediumMargin = 0.2f;
-        private const float HardMargin = 0.15f;
-        private const float UltraMargin = 0.1f;
-
-        // Time limit in seconds TODO
-        private const float EasyTimeLimit = 60f;
-        private const float MediumTimeLimit = 60f;
-        private const float HardTimeLimit = 90f;
-        private const float UltraTimeLimit = 120f;
-
-
+        public static List<Model> PlayerModels;
+        private static Effect _modelEffect;
+        private static SoundEffect _successSoundEffect;
 
         private GraphicsDevice _graphicsDevice;
         private ExtendedSpriteBatch _spriteBatch;
@@ -44,17 +33,20 @@ namespace Alexander_VT19
 
         private ParticleSystem _particleSystem;
 
-        private Challenge _challenge;
+        private LightingMaterial _playerMaterial;
         private Player _player;
-        private PlayerSelectMenu.PlayerData _playerData;
+        private LightingMaterial _challengeMaterial;
+        private Challenge _challenge;
         private double _currentTime;
+
+        public PlayerData PlayerData;
         public double Score;
 
         private int _modelIndex;
         /// <summary>
         /// Sets a new model to the player
         /// </summary>
-        public int ModelIndex
+        private int ModelIndex
         {
             get { return _modelIndex; }
             set
@@ -64,10 +56,10 @@ namespace Alexander_VT19
             }
         }
 
-        public GameInstance(PlayerSelectMenu.PlayerData playerData, GraphicsDevice graphics, ContentManager content)
+        public GameInstance(PlayerData playerData, GraphicsDevice graphics, ContentManager content)
         {
             // Load Models if they have not already been loaded
-            if (_playerModels == null || _simpleEffect == null) LoadContent(content);
+            if (PlayerModels == null || _modelEffect == null) LoadContent(content);
 
 
             // Initialize graphics & rendering related things
@@ -76,38 +68,46 @@ namespace Alexander_VT19
             RenderTarget = new RenderTarget2D(_graphicsDevice, _graphicsDevice.Viewport.Width, _graphicsDevice.Viewport.Height);
 
             // Store "PlayerData"
-            _playerData = playerData;
+            PlayerData = playerData;
 
             // Create "Win" particle System
             //Texture2D particleTexture = content.Load<Texture2D>(@""); // TODO
             //particleSystem = new ParticleSystem(graphicsDevice, content, particleTexture, 8, new Vector2(10), 100, Vector3.Zero, 0);
 
             // Create a new player 
-            CustomModel playerCustomModel = new CustomModel(_playerModels[_modelIndex], PlayerSpawnPosition, Vector3.Zero, Vector3.One * 100f, graphics);
-            playerCustomModel.SetModelEffect(_simpleEffect, false);
-            _player = new Player(playerData.PlayerIndex, playerData.PreferredInputMethod, playerCustomModel, graphics);
-            // Create a new challenge
-            CustomModel challengeCustomModel = new CustomModel(_playerModels[_modelIndex], PlayerSpawnPosition, Vector3.Zero, Vector3.One * 100f, graphics);
-            challengeCustomModel.SetModelEffect(_simpleEffect, false);
-            _challenge = new Challenge(challengeCustomModel, EasyMargin);
+            CustomModel playerCustomModel = new CustomModel(PlayerModels[_modelIndex], PlayerSpawnPosition, Vector3.Zero, Vector3.One * 100f, graphics);
+            _playerMaterial = new LightingMaterial();
+            playerCustomModel.Material = _playerMaterial;
+            playerCustomModel.SetModelEffect(_modelEffect, false);
+            _player = new Player(playerData.PlayerIndex, playerData.PreferredInputMethod, playerCustomModel);
 
-            // Set CurrentTime to its difficulty´s time limit TODO
-            _currentTime = EasyTimeLimit;
+            // Create a new challenge
+            CustomModel challengeCustomModel = new CustomModel(PlayerModels[_modelIndex], PlayerSpawnPosition, Vector3.Zero, Vector3.One * 100f, graphics);
+            _challengeMaterial = new LightingMaterial();
+            challengeCustomModel.Material = _challengeMaterial;
+            challengeCustomModel.SetModelEffect(_modelEffect, false);
+            _challenge = new Challenge(challengeCustomModel, PlayerData.Difficulty.Margin);
+
+            // Set CurrentTime to its difficulty´s time limit
+            _currentTime = PlayerData.Difficulty.TimeLimit;
 
         }
 
 
 
-        private static void LoadContent(ContentManager content)
+        public static void LoadContent(ContentManager content)
         {
             // Load Models for player
-            _playerModels = new List<Model>
+            PlayerModels = new List<Model>
             {
                 content.Load<Model>(@"Models/newTest"),
+                content.Load<Model>(@"Models/1Cylinder"),
+                content.Load<Model>(@"Models/Sphere"),
             };
 
-            _simpleEffect = content.Load<Effect>(@"Effects/SimpleEffect");
+            _modelEffect = content.Load<Effect>(@"Effects/LightingEffect");
             _timeFont = content.Load<SpriteFont>(@"DefaultFont");
+            _successSoundEffect = content.Load<SoundEffect>(@"Sounds/Success");
         }
 
 
@@ -117,15 +117,12 @@ namespace Alexander_VT19
             // Update player
             _player.Update(gameTime);
 
-            // Remove elapsed time from current time
-            _currentTime -= gameTime.ElapsedGameTime.TotalSeconds;
 
             // If time has run out...
-            if (_currentTime <= 0)
-            {
-                // Continue to next challenge
-                Next(false);
-            }
+            if (_currentTime <= 0) Next(false); // Continue to next challenge
+            else _currentTime -= gameTime.ElapsedGameTime.TotalSeconds; // Else remove elapsed time from current time
+                
+
 
             // If player color is within margins of the current challenge...
             if (_challenge.CheckCorrectColor(_player))
@@ -135,77 +132,41 @@ namespace Alexander_VT19
             }
 
 
-            if(Keyboard.GetState().IsKeyDown(Keys.R)) _challenge = new Challenge(_challenge, EasyMargin);
+            //if(Keyboard.GetState().IsKeyDown(Keys.R)) Next(true);
         }
 
-        //private void CheckRotation(GameTime gameTime)
-        //{
-        //    bool correctX = false, correctY = false, correctZ = false, all = false;
-
-        //    if (_player.customModel.Rotation.X < _challenge.DesiredRotation.X + _challenge.Margin &&
-        //        _player.customModel.Rotation.X > _challenge.DesiredRotation.X - _challenge.Margin) correctX = true;
-
-        //    if (_player.customModel.Rotation.Y < _challenge.DesiredRotation.Y + _challenge.Margin &&
-        //        _player.customModel.Rotation.Y > _challenge.DesiredRotation.Y - _challenge.Margin) correctY = true;
-
-        //    if (_player.customModel.Rotation.Z < _challenge.DesiredRotation.Z + _challenge.Margin &&
-        //        _player.customModel.Rotation.Z > _challenge.DesiredRotation.Z - _challenge.Margin) correctZ = true;
-
-        //    all = correctX && correctY && correctZ;
-
-
-        //    // If all axis are aligned
-        //    if (all)
-        //    {
-        //        // Add time to timer
-        //        _timeOnTarget += gameTime.ElapsedGameTime.Milliseconds;
-
-        //        // Shake Camera TODO
-
-        //        // If time on target elapses target time,
-        //        if (_timeOnTarget >= TargetTimeOnTarget)
-        //        {
-        //            // Give player points, change model, and spawn particles
-        //            Next();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        // Reset Timer
-        //        _timeOnTarget = 0;
-        //    }
-        //}
 
 
         private void Next(bool result)
         {
+             // if target was hit
+            if (result)
+            {
+                // Add score
+                Score += _currentTime;
+                // play sound effect
+                _successSoundEffect.Play();
+            }
+
+
             // Spawn Particles TODO
             
-            // Add score 
-            Score += _currentTime;
             // Next challenge
-            _challenge = new Challenge(_challenge, EasyMargin);
+            _challenge = new Challenge(_challenge, PlayerData.Difficulty.Margin);
             // Next model
-            ModelIndex = (ModelIndex + 1) % _playerModels.Count;
+            ModelIndex = (ModelIndex + 1) % PlayerModels.Count;
+            // Reset time
+            _currentTime = PlayerData.Difficulty.TimeLimit;
         }
 
         private void UpdateModel()
         {
-            _player.CustomModel.Model = _playerModels[ModelIndex];
-            _challenge.Model = _playerModels[ModelIndex];
+            _player.CustomModel.Model = PlayerModels[ModelIndex];
+            _challenge.Model = PlayerModels[ModelIndex];
+            _player.CustomModel.SetModelEffect(_modelEffect,true);
+            _challenge.CustomModel.SetModelEffect(_modelEffect, true);
         }
 
-
-
-        ///// <summary>
-        ///// New drawing Method
-        ///// </summary>
-        ///// <param name="deferredRenderer"></param>
-        ///// <param name="camera"></param>
-        //public void Draw(DeferredRenderer deferredRenderer, Camera camera)
-        //{
-        //    deferredRenderer.Draw(graphicsDevice, new List<Model> {_player.customModel.Model}, lightManager, camera, RenderTarget);
-        //}
 
         /// <summary>
         /// Old drawing (standard renderer)
@@ -220,13 +181,26 @@ namespace Alexander_VT19
             // Draw Time remaining
             string timeString = Math.Round(_currentTime, 2).ToString();
             Vector2 timeSize = _timeFont.MeasureString(timeString);
+
             _spriteBatch.Begin();
             // Draw white "shadow" behind text so the text is viewable even on a dark background
-            _spriteBatch.DrawString(_timeFont, timeString, (new Vector2(_graphicsDevice.Viewport.Width, 50) - timeSize * 1.1f) / 2, Color.White, 0,Vector2.Zero, 1.1f, SpriteEffects.None,0);
+            _spriteBatch.DrawString(_timeFont, timeString, (new Vector2(_graphicsDevice.Viewport.Width, 50) - timeSize * 2f) / 2, Color.White, 0,Vector2.Zero, 2f, SpriteEffects.None,0);
             // Draw the text
-            _spriteBatch.DrawString(_timeFont, timeString, (new Vector2(_graphicsDevice.Viewport.Width, 50) - timeSize) / 2, _playerData.Color);
+            _spriteBatch.DrawString(_timeFont, timeString, (new Vector2(_graphicsDevice.Viewport.Width, 50) - timeSize * 1.9f) / 2, PlayerData.Color, 0, Vector2.Zero, 1.9f, SpriteEffects.None,0);
             _spriteBatch.End();
 
+        }
+
+        public void DrawGameOver()
+        {
+            string scoreString = Math.Round(Score, 2).ToString();
+            Vector2 scoreSize = _timeFont.MeasureString(scoreString);
+
+            _spriteBatch.Begin();
+            // Draw Score
+            _spriteBatch.DrawString(_timeFont, scoreString, (new Vector2(_graphicsDevice.Viewport.Width, 150) - scoreSize) / 2, Color.White);
+
+            _spriteBatch.End();
         }
     }
 }

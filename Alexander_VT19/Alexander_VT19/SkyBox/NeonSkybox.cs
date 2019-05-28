@@ -17,7 +17,6 @@ namespace Alexander_VT19
 
         private Effect _fillEffect;
         public SkyBox SkyBox;
-        private Vector3 _color;
 
         private NeonBackground _neon;
 

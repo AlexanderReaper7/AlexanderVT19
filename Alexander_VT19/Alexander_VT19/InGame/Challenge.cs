@@ -14,10 +14,10 @@ namespace Alexander_VT19
 
         public Model Model
         {
-            set { _customModel.Model = value; }
+            set { CustomModel.Model = value; }
         }
 
-        private CustomModel _customModel;
+        public CustomModel CustomModel;
         private readonly float _margin;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Alexander_VT19
         /// </summary>
         /// <param name="challenge"></param>
         /// <param name="margin">How accurate the player needs to be in % (0 to 1) to get correct</param>
-        public Challenge(Challenge challenge, float margin) : this(challenge._customModel, margin)
+        public Challenge(Challenge challenge, float margin) : this(challenge.CustomModel, margin)
         {
         }
 
@@ -42,12 +42,13 @@ namespace Alexander_VT19
             v *= MathHelper.TwoPi;
 
             // Apply new values
-            _customModel = customModel;
-            _customModel.Rotation = v;
-            _customModel.Position = Position;
-            _customModel.Material = new SimpleMaterial();
+            CustomModel = customModel;
+            CustomModel.Rotation = v;
+            CustomModel.Position = Position;
+            CustomModel.Material = new LightingMaterial() {};
+
             // Calculate and apply new color
-            ((SimpleMaterial) _customModel.Material).DiffuseColor = ColorHelper.CalculateColorFromRotation(_customModel.Rotation).ToVector3();
+            ((LightingMaterial) CustomModel.Material).DiffuseColor = ColorHelper.CalculateColorFromRotation(CustomModel.Rotation).ToVector3();
 
             _margin = MathHelper.Clamp(margin, 0, 1);
         }
@@ -92,7 +93,7 @@ namespace Alexander_VT19
         {
             // Calculate colors from rotation
             Color playerColor = ColorHelper.CalculateColorFromRotation(player.CustomModel.Rotation); //TODO: refactor
-            Color color = ColorHelper.CalculateColorFromRotation(_customModel.Rotation);
+            Color color = ColorHelper.CalculateColorFromRotation(CustomModel.Rotation);
 
             if (playerColor.R / (float)color.R < 1 + _margin && playerColor.R / (float)color.R > 1 - _margin)
                 if (playerColor.G / (float)color.G < 1 + _margin && playerColor.G / (float)color.G > 1 - _margin)
@@ -106,7 +107,7 @@ namespace Alexander_VT19
 
         public void Draw(Camera camera)
         {
-            _customModel.Draw(camera.View, camera.Projection, camera.Position);
+            CustomModel.Draw(camera.View, camera.Projection, camera.Position);
         }
     }
 }

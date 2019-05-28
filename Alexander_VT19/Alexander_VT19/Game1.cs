@@ -18,30 +18,53 @@ namespace Alexander_VT19
         Exit
     }
 
+    #region TODO´s
+
+    // TODO: unique Fonts that fit the theme and purpose
+    // TODO: higher quality fonts
+    // TODO: more models
+    // TODO: Replace the CheckCorrectColor method with DeltaE color checking, see ColorHelper.cs for more
+    // TODO: more sound effect
+    // TODO: background music for the menu
+    // TODO: InGame music
+    // TODO: Secret menu for debugging stuff
+    // TODO: Research SMAA
+    // TODO: Implement Deferred rendering
+    // TODO: Implement a blurring effect on the background in PlayerSelectMenu
+    // TODO: Fail, Success and Win Particles
+    // TODO: display resolution scaling
+    // TODO: Additional visual effects in InGame (represent speed etc.)
+    // TODO: finalize difficulties implementation
+    // TODO: custom game parameters ( game duration etc.)
+
+
+    #endregion
+
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        private GraphicsDeviceManager _graphics;
+        public static GraphicsDeviceManager Graphics;
 
-        private static GameStates _gameState;
+        private static GameStates _currentGameState;
         private static GameStates _nextGameState;
 
         public static GameStates GameState
         {
-            get { return _gameState; }
+            get { return _currentGameState; }
             set { _nextGameState = value; }
         }
 
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.PreferMultiSampling = true;
+            Graphics.PreferredBackBufferWidth = 1920;
+            Graphics.PreferredBackBufferHeight = 1080;
+            Graphics.PreferMultiSampling = true;
             IsFixedTimeStep = false;
 
             //_graphics.IsFullScreen = true;
@@ -65,13 +88,13 @@ namespace Alexander_VT19
         protected override void LoadContent()
         {
             const GameStates firstGameState = GameStates.PlayerSelection;
-            _gameState = firstGameState;
+            _currentGameState = firstGameState;
             _nextGameState = firstGameState;
 
             // Load InGame
             InGame.LoadContent(Content, GraphicsDevice);
-
             PlayerSelectMenu.LoadContent(Content, GraphicsDevice);
+            PlayerSelectMenu.StartNewSelection();
         }
 
         /// <summary>
@@ -102,11 +125,11 @@ namespace Alexander_VT19
                 case GameStates.InGame:
                     InGame.Update(gameTime);
                     break;
+                case GameStates.PlayerSelection:
+                    PlayerSelectMenu.Update(gameTime);
+                    break;
                 case GameStates.Exit:
                     Exit();
-                    break;
-                case GameStates.PlayerSelection:
-                    PlayerSelectMenu.Update();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -126,10 +149,10 @@ namespace Alexander_VT19
                 case GameStates.InGame:
                     InGame.Draw(gameTime);
                     break;
-                case GameStates.Exit:
-                    break;
                 case GameStates.PlayerSelection:
                     PlayerSelectMenu.Draw(gameTime);
+                    break;
+                case GameStates.Exit:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -142,7 +165,7 @@ namespace Alexander_VT19
         private void FinalUpdate()
         {
             // Update Game State
-            _gameState = _nextGameState;
+            _currentGameState = _nextGameState;
         }
     }
 }
